@@ -1,9 +1,6 @@
 import Anthropic from '@anthropic-ai/sdk';
 import { google } from 'googleapis';
 import XLSX from 'xlsx';
-import pdf from 'pdf-parse';
-import { parseStringPromise } from 'xml2js';
-import mammoth from 'mammoth';
 
 const anthropic = new Anthropic({
   apiKey: process.env.ANTHROPIC_API_KEY
@@ -11,7 +8,6 @@ const anthropic = new Anthropic({
 
 let auth = null;
 let drive = null;
-let sheets = null;
 
 try {
   let credentials = null;
@@ -35,7 +31,6 @@ try {
       ]
     });
     drive = google.drive({ version: 'v3', auth });
-    sheets = google.sheets({ version: 'v4', auth });
   }
 } catch (error) {
   console.error('Google Auth error:', error.message);
@@ -44,8 +39,8 @@ try {
 const MAIN_FOLDER_ID = process.env.DRIVE_FOLDER_ID || '1LMhvJktYAvY9MISgaQipiiCnttM838Sj';
 const fileCache = new Map();
 
-// LECTURA EXCEL
-async function downloadAndReadExcel(fileId) {
+// EXCEL
+async function readExcel(fileId) {
   try {
     const response = await drive.files.get(
       { fileId, alt: 'media' },
@@ -58,13 +53,13 @@ async function downloadAndReadExcel(fileId) {
     });
     return result;
   } catch (error) {
-    console.error(`Error reading Excel:`, error.message);
+    console.error(`Error Excel:`, error.message);
     return null;
   }
 }
 
-// LECTURA GOOGLE SHEET
-async function downloadAndReadGoogleSheet(sheetId) {
+// GOOGLE SHEET
+async function readGoogleSheet(sheetId) {
   try {
     const response = await drive.files.export(
       { fileId: sheetId, mimeType: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' },
@@ -77,174 +72,115 @@ async function downloadAndReadGoogleSheet(sheetId) {
     });
     return result;
   } catch (error) {
-    console.error(`Error reading Google Sheet:`, error.message);
+    console.error(`Error Sheet:`, error.message);
     return null;
   }
 }
 
-// LECTURA GOOGLE DOC
-async function downloadAndReadGoogleDoc(docId) {
+// GOOGLE DOC
+async function readGoogleDoc(docId) {
   try {
     const response = await drive.files.export(
-      { fileId: docId, mimeType: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' },
+      { fileId: docId, mimeType: 'text/plain' },
       { responseType: 'arraybuffer' }
     );
-    const result = await mammoth.extractRawText({ arrayBuffer: response.data });
-    return { text: result.value, source: 'GoogleDoc' };
+    const text = Buffer.from(response.data).toString('utf-8');
+    return { text, type: 'GoogleDoc' };
   } catch (error) {
-    console.error(`Error reading Google Doc:`, error.message);
+    console.error(`Error GoogleDoc:`, error.message);
     return null;
   }
 }
 
-// LECTURA WORD
-async function downloadAndReadWord(fileId) {
-  try {
-    const response = await drive.files.get(
-      { fileId, alt: 'media' },
-      { responseType: 'arraybuffer' }
-    );
-    const result = await mammoth.extractRawText({ arrayBuffer: response.data });
-    return { text: result.value, source: 'Word' };
-  } catch (error) {
-    console.error(`Error reading Word:`, error.message);
-    return null;
-  }
-}
-
-// LECTURA PDF
-async function downloadAndReadPDF(fileId) {
-  try {
-    const response = await drive.files.get(
-      { fileId, alt: 'media' },
-      { responseType: 'arraybuffer' }
-    );
-    const data = await pdf(Buffer.from(response.data));
-    return { text: data.text, pages: data.numpages, source: 'PDF' };
-  } catch (error) {
-    console.error(`Error reading PDF:`, error.message);
-    return null;
-  }
-}
-
-// LECTURA GPX
-async function downloadAndReadGPX(fileId) {
+// GPX (parser simple)
+async function readGPX(fileId) {
   try {
     const response = await drive.files.get(
       { fileId, alt: 'media' },
       { responseType: 'arraybuffer' }
     );
     const gpxText = Buffer.from(response.data).toString('utf-8');
-    const gpxData = await parseStringPromise(gpxText);
     
     const result = {
       type: 'GPX',
       trackpoints: [],
       waypoints: [],
-      elevation: { min: Infinity, max: -Infinity },
-      bounds: {},
-      source: 'GPX'
+      elevation: { min: Infinity, max: -Infinity }
     };
     
-    if (gpxData.gpx?.trk) {
-      gpxData.gpx.trk.forEach(track => {
-        if (track.trkseg) {
-          track.trkseg.forEach(segment => {
-            if (segment.trkpt) {
-              segment.trkpt.forEach(point => {
-                const ele = parseFloat(point.ele?.[0] || 0);
-                result.trackpoints.push({
-                  lat: parseFloat(point.$.lat),
-                  lon: parseFloat(point.$.lon),
-                  ele: ele
-                });
-                if (ele) {
-                  result.elevation.min = Math.min(result.elevation.min, ele);
-                  result.elevation.max = Math.max(result.elevation.max, ele);
-                }
-              });
-            }
-          });
-        }
+    // Trackpoints
+    const trkptRegex = /<trkpt lat="([\d.-]+)" lon="([\d.-]+)">[\s\S]*?<ele>([\d.-]+)<\/ele>/g;
+    let match;
+    while ((match = trkptRegex.exec(gpxText)) !== null) {
+      const ele = parseFloat(match[3]);
+      result.trackpoints.push({
+        lat: parseFloat(match[1]),
+        lon: parseFloat(match[2]),
+        ele: ele
       });
+      result.elevation.min = Math.min(result.elevation.min, ele);
+      result.elevation.max = Math.max(result.elevation.max, ele);
     }
     
-    if (gpxData.gpx?.wpt) {
-      gpxData.gpx.wpt.forEach(point => {
-        result.waypoints.push({
-          name: point.name?.[0],
-          lat: parseFloat(point.$.lat),
-          lon: parseFloat(point.$.lon)
-        });
+    // Waypoints
+    const wptRegex = /<wpt lat="([\d.-]+)" lon="([\d.-]+)">[\s\S]*?<name>(.*?)<\/name>/g;
+    while ((match = wptRegex.exec(gpxText)) !== null) {
+      result.waypoints.push({
+        name: match[3],
+        lat: parseFloat(match[1]),
+        lon: parseFloat(match[2])
       });
-    }
-    
-    if (gpxData.gpx?.bounds?.[0]) {
-      const b = gpxData.gpx.bounds[0].$;
-      result.bounds = {
-        minlat: parseFloat(b.minlat),
-        minlon: parseFloat(b.minlon),
-        maxlat: parseFloat(b.maxlat),
-        maxlon: parseFloat(b.maxlon)
-      };
     }
     
     return result;
   } catch (error) {
-    console.error(`Error reading GPX:`, error.message);
+    console.error(`Error GPX:`, error.message);
     return null;
   }
 }
 
-// LECTURA KML
-async function downloadAndReadKML(fileId) {
+// KML
+async function readKML(fileId) {
   try {
     const response = await drive.files.get(
       { fileId, alt: 'media' },
       { responseType: 'arraybuffer' }
     );
     const kmlText = Buffer.from(response.data).toString('utf-8');
-    const kmlData = await parseStringPromise(kmlText);
-    return { type: 'KML', data: kmlData, source: 'KML' };
+    return { text: kmlText, type: 'KML' };
   } catch (error) {
-    console.error(`Error reading KML:`, error.message);
+    console.error(`Error KML:`, error.message);
     return null;
   }
 }
 
 // PROCESAR ARCHIVO
-async function processFileContent(file) {
+async function processFile(file) {
   try {
     if (file.mimeType.includes('google-apps.spreadsheet')) {
-      return await downloadAndReadGoogleSheet(file.id);
+      return await readGoogleSheet(file.id);
     }
     if (file.mimeType.includes('google-apps.document')) {
-      return await downloadAndReadGoogleDoc(file.id);
+      return await readGoogleDoc(file.id);
     }
     if (file.mimeType.includes('spreadsheet') || file.name.match(/\.(xlsx?|xls)$/i)) {
-      return await downloadAndReadExcel(file.id);
-    }
-    if (file.mimeType.includes('wordprocessingml') || file.name.endsWith('.docx')) {
-      return await downloadAndReadWord(file.id);
-    }
-    if (file.mimeType.includes('pdf') || file.name.endsWith('.pdf')) {
-      return await downloadAndReadPDF(file.id);
+      return await readExcel(file.id);
     }
     if (file.name.endsWith('.gpx')) {
-      return await downloadAndReadGPX(file.id);
+      return await readGPX(file.id);
     }
     if (file.name.endsWith('.kml')) {
-      return await downloadAndReadKML(file.id);
+      return await readKML(file.id);
     }
     return null;
   } catch (error) {
-    console.error(`Error processing ${file.name}:`, error.message);
+    console.error(`Error processing:`, error.message);
     return null;
   }
 }
 
 // LISTAR ARCHIVOS
-async function listDriveFiles(folderId = MAIN_FOLDER_ID) {
+async function listFiles(folderId = MAIN_FOLDER_ID) {
   if (!drive) return [];
   const cacheKey = `files_${folderId}`;
   if (fileCache.has(cacheKey)) {
@@ -262,42 +198,20 @@ async function listDriveFiles(folderId = MAIN_FOLDER_ID) {
     fileCache.set(cacheKey, { data: files, timestamp: Date.now() });
     return files;
   } catch (error) {
-    console.error('Error listing files:', error.message);
+    console.error('Error listing:', error.message);
     return [];
   }
 }
 
-const SYSTEM_PROMPT = `Eres el asistente inteligente de O Gran Camiño 2025.
+const SYSTEM_PROMPT = `Eres el asistente de O Gran Camiño 2025.
 
-## REGLAS
-1. **NUNCA inventes datos** - Solo usa archivos
+REGLAS:
+1. **NUNCA inventes datos** - solo usa archivos
 2. Responde en HTML elegante
-3. Lee PDF, Docs, Excel, Sheets completo
-4. Extrae GPX: coordenadas, elevación, distancia
-5. Si falta info, dilo claramente
+3. Para descargas: dile usuario que descargue desde Drive
+4. Si falta info, dilo claro
 
-## FORMATO RESPUESTAS
-
-TABLAS:
-<h3>🏨 Hoteles O Gran Camiño 2025</h3>
-<table style="width:100%; border-collapse:collapse;">
-  <tr style="background:#667eea; color:white;">
-    <th style="padding:10px; border:1px solid #ddd;">Equipo</th>
-    <th style="padding:10px; border:1px solid #ddd;">Hotel</th>
-  </tr>
-  <tr>
-    <td style="padding:10px; border:1px solid #ddd;">Movistar</td>
-    <td style="padding:10px; border:1px solid #ddd;">Feel Viana</td>
-  </tr>
-</table>
-
-RUTAS (GPX):
-<h3>🗺️ Etapa - Ruta</h3>
-<p><strong>Puntos:</strong> [número]</p>
-<p><strong>Elevación:</strong> [m min] - [m max]</p>
-<p><strong>Inicio:</strong> Lat, Lon</p>
-
-EMOJIS: 🚴 🗺️ 🏨 📍 ⚠️ 📅`;
+Responde siempre formateado con tablas y emojis.`;
 
 export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
@@ -311,19 +225,14 @@ export default async function handler(req, res) {
   
   try {
     if (req.method === 'GET' && req.url.includes('/files')) {
-      const files = await listDriveFiles();
-      const formattedFiles = files.map(f => ({
+      const files = await listFiles();
+      const formatted = files.map(f => ({
         id: f.id,
         name: f.name,
-        type: f.mimeType.includes('spreadsheet') ? 'excel' :
-              f.mimeType.includes('google-apps.spreadsheet') ? 'sheet' :
-              f.mimeType.includes('google-apps.document') ? 'doc' :
-              f.mimeType.includes('wordprocessingml') ? 'word' :
-              f.mimeType.includes('pdf') ? 'pdf' :
-              f.name.match(/\.(gpx|kml)$/i) ? 'track' : 'file',
-        size: f.size
+        type: f.name.endsWith('.gpx') ? 'gpx' : f.name.endsWith('.kml') ? 'kml' : 'file',
+        link: f.webViewLink
       }));
-      return res.status(200).json({ success: true, files: formattedFiles });
+      return res.status(200).json({ success: true, files: formatted });
     }
     
     if (req.method === 'POST') {
@@ -332,37 +241,24 @@ export default async function handler(req, res) {
         return res.status(400).json({ success: false, error: 'Mensaje requerido' });
       }
       
-      const files = await listDriveFiles();
-      let context = '\n## INFORMACIÓN DISPONIBLE:\n\n';
-      let fileCount = 0;
+      const files = await listFiles();
+      let context = '\n## ARCHIVOS:\n\n';
+      let count = 0;
       
       for (const file of files) {
-        const cacheKey = `content_${file.id}`;
-        let content = null;
-        
-        if (fileCache.has(cacheKey)) {
-          const cached = fileCache.get(cacheKey);
-          if (Date.now() - cached.timestamp < 30 * 60 * 1000) {
-            content = cached.data;
-          }
-        }
+        const key = `content_${file.id}`;
+        let content = fileCache.get(key)?.data;
         
         if (!content) {
-          content = await processFileContent(file);
+          content = await processFile(file);
           if (content) {
-            fileCache.set(cacheKey, { data: content, timestamp: Date.now() });
+            fileCache.set(key, { data: content, timestamp: Date.now() });
           }
         }
         
         if (content) {
-          fileCount++;
-          context += `\n### 📄 ${file.name}\n`;
-          const contentStr = JSON.stringify(content);
-          if (contentStr.length > 50000) {
-            context += contentStr.substring(0, 5000) + '...\n';
-          } else {
-            context += contentStr + '\n';
-          }
+          count++;
+          context += `\n### ${file.name}\n${JSON.stringify(content)}\n`;
         }
       }
       
@@ -376,12 +272,11 @@ export default async function handler(req, res) {
       return res.status(200).json({
         success: true,
         response: response.content[0].text,
-        tokensUsed: response.usage,
-        filesProcessed: fileCount
+        filesProcessed: count
       });
     }
     
-    return res.status(405).json({ success: false, error: 'Método no permitido' });
+    return res.status(405).json({ success: false, error: 'No permitido' });
   } catch (error) {
     console.error('Error:', error);
     return res.status(500).json({ success: false, error: error.message });
