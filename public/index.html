@@ -1,0 +1,861 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Agentes IA - O Gran Camiño 2025</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        
+        /* Login Screen */
+        .login-screen {
+            max-width: 500px;
+            margin: 100px auto;
+            background: white;
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+        
+        .login-screen h1 {
+            text-align: center;
+            margin-bottom: 10px;
+            color: #1e293b;
+        }
+        
+        .login-screen p {
+            text-align: center;
+            color: #64748b;
+            margin-bottom: 30px;
+        }
+        
+        .team-select {
+            margin-bottom: 20px;
+        }
+        
+        .team-select label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #1e293b;
+        }
+        
+        .team-select select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e5e7eb;
+            border-radius: 10px;
+            font-size: 1rem;
+            outline: none;
+        }
+        
+        .code-input {
+            margin-bottom: 20px;
+        }
+        
+        .code-input label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #1e293b;
+        }
+        
+        .code-input input {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e5e7eb;
+            border-radius: 10px;
+            font-size: 1rem;
+            outline: none;
+        }
+        
+        .code-input input:focus {
+            border-color: #667eea;
+        }
+        
+        .login-btn {
+            width: 100%;
+            padding: 14px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .login-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(102, 126, 234, 0.4);
+        }
+        
+        .public-access {
+            text-align: center;
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 1px solid #e5e7eb;
+        }
+        
+        .public-access a {
+            color: #667eea;
+            text-decoration: none;
+            font-weight: 600;
+        }
+        
+        .error-message {
+            background: #fef2f2;
+            border: 1px solid #fecaca;
+            color: #991b1b;
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            font-size: 0.9rem;
+            display: none;
+        }
+        
+        /* Main App */
+        .app {
+            display: none;
+        }
+        
+        .app.active {
+            display: block;
+        }
+        
+        .app-header {
+            background: white;
+            padding: 20px;
+            border-radius: 16px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .app-header-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .team-avatar {
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+        }
+        
+        .app-header-text h1 {
+            font-size: 1.5rem;
+            color: #1e293b;
+        }
+        
+        .app-header-text p {
+            color: #64748b;
+        }
+        
+        .logout-btn {
+            padding: 10px 20px;
+            background: white;
+            border: 2px solid #e5e7eb;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .logout-btn:hover {
+            border-color: #667eea;
+            color: #667eea;
+        }
+        
+        .main-content {
+            display: grid;
+            grid-template-columns: 300px 1fr;
+            gap: 20px;
+        }
+        
+        /* Sidebar - Archivos */
+        .sidebar {
+            background: white;
+            border-radius: 16px;
+            padding: 20px;
+            height: fit-content;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        .sidebar h3 {
+            margin-bottom: 15px;
+            color: #1e293b;
+        }
+        
+        .files-list {
+            max-height: 500px;
+            overflow-y: auto;
+        }
+        
+        .file-item {
+            padding: 12px;
+            margin-bottom: 8px;
+            background: #f8fafc;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .file-item:hover {
+            background: #eff6ff;
+            transform: translateX(4px);
+        }
+        
+        .file-icon {
+            font-size: 1.5rem;
+        }
+        
+        .file-info {
+            flex: 1;
+            min-width: 0;
+        }
+        
+        .file-name {
+            font-size: 0.85rem;
+            font-weight: 500;
+            color: #1e293b;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        
+        .file-type {
+            font-size: 0.7rem;
+            color: #94a3b8;
+            margin-top: 2px;
+        }
+        
+        .file-actions {
+            display: flex;
+            gap: 4px;
+        }
+        
+        .file-action-btn {
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 1rem;
+            padding: 4px;
+            transition: transform 0.2s;
+        }
+        
+        .file-action-btn:hover {
+            transform: scale(1.2);
+        }
+        
+        /* Chat Area */
+        .chat-container {
+            background: white;
+            border-radius: 16px;
+            display: flex;
+            flex-direction: column;
+            height: 600px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        .chat-header {
+            padding: 20px;
+            border-bottom: 1px solid #e5e7eb;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-radius: 16px 16px 0 0;
+        }
+        
+        .chat-header h2 {
+            font-size: 1.2rem;
+        }
+        
+        .messages {
+            flex: 1;
+            overflow-y: auto;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+        
+        .message {
+            display: flex;
+            gap: 12px;
+            align-items: flex-end;
+        }
+        
+        .message.user {
+            justify-content: flex-end;
+        }
+        
+        .message-avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            flex-shrink: 0;
+        }
+        
+        .message-content {
+            max-width: 70%;
+            padding: 12px 16px;
+            border-radius: 12px;
+            line-height: 1.5;
+        }
+        
+        .message.agent .message-content {
+            background: #f1f5f9;
+            color: #1e293b;
+        }
+        
+        .message.user .message-content {
+            background: #667eea;
+            color: white;
+        }
+        
+        .typing-indicator {
+            display: flex;
+            gap: 4px;
+            align-items: center;
+        }
+        
+        .typing-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #667eea;
+            animation: bounce 1.4s infinite;
+        }
+        
+        .typing-dot:nth-child(2) {
+            animation-delay: 0.2s;
+        }
+        
+        .typing-dot:nth-child(3) {
+            animation-delay: 0.4s;
+        }
+        
+        @keyframes bounce {
+            0%, 80%, 100% {
+                transform: scale(0.8);
+                opacity: 0.5;
+            }
+            40% {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+        
+        .chat-footer {
+            padding: 16px;
+            border-top: 1px solid #e5e7eb;
+            display: flex;
+            gap: 10px;
+        }
+        
+        #messageInput {
+            flex: 1;
+            padding: 10px 14px;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            font-size: 0.95rem;
+            font-family: inherit;
+            resize: none;
+            max-height: 120px;
+            outline: none;
+        }
+        
+        #messageInput:focus {
+            border-color: #667eea;
+        }
+        
+        #sendButton {
+            padding: 10px 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.2s;
+        }
+        
+        #sendButton:hover {
+            transform: translateY(-2px);
+        }
+        
+        #sendButton:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        
+        .suggestions {
+            padding: 20px;
+            background: #f8fafc;
+            border-top: 1px solid #e5e7eb;
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        
+        .suggestion-btn {
+            padding: 8px 14px;
+            background: white;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.85rem;
+            transition: all 0.2s;
+        }
+        
+        .suggestion-btn:hover {
+            border-color: #667eea;
+            background: #eff6ff;
+        }
+        
+        /* Responsive */
+        @media (max-width: 768px) {
+            .main-content {
+                grid-template-columns: 1fr;
+            }
+            
+            .sidebar {
+                display: none;
+            }
+            
+            .message-content {
+                max-width: 90%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Login Screen -->
+        <div id="loginScreen" class="login-screen">
+            <h1>🚴 O Gran Camiño</h1>
+            <p>Agentes IA 2025</p>
+            
+            <div class="error-message" id="errorMessage"></div>
+            
+            <div class="team-select">
+                <label>Selecciona tu equipo:</label>
+                <select id="teamSelect">
+                    <option value="">-- Selecciona equipo --</option>
+                    <option value="movistar">🟠 Movistar</option>
+                    <option value="ineos">🔵 Ineos</option>
+                    <option value="jumbo">🟡 Jumbo</option>
+                    <option value="uae">🔴 UAE</option>
+                </select>
+            </div>
+            
+            <div class="code-input">
+                <label>Código de acceso:</label>
+                <input type="password" id="accessCode" placeholder="Ingresa el código">
+            </div>
+            
+            <button class="login-btn" onclick="handleLogin()">Entrar</button>
+            
+            <div class="public-access">
+                <a href="#" onclick="accessPublic(); return false;">Acceso público →</a>
+            </div>
+        </div>
+        
+        <!-- Main App -->
+        <div id="app" class="app">
+            <!-- Header -->
+            <div class="app-header">
+                <div class="app-header-info">
+                    <div class="team-avatar" id="teamIcon">🚴</div>
+                    <div class="app-header-text">
+                        <h1 id="teamName">O Gran Camiño</h1>
+                        <p id="teamSubtitle">Agentes IA</p>
+                    </div>
+                </div>
+                <button class="logout-btn" onclick="handleLogout()">Salir</button>
+            </div>
+            
+            <!-- Main Content -->
+            <div class="main-content">
+                <!-- Sidebar -->
+                <div class="sidebar">
+                    <h3>📁 Archivos</h3>
+                    <div class="files-list" id="filesList">
+                        <div style="color: #94a3b8; text-align: center; padding: 20px;">
+                            Cargando archivos...
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Chat -->
+                <div class="chat-container">
+                    <div class="chat-header">
+                        <h2>💬 Asistente O Gran Camiño</h2>
+                    </div>
+                    
+                    <div class="messages" id="messages"></div>
+                    
+                    <div class="suggestions" id="suggestions">
+                        <button class="suggestion-btn" onclick="sendSuggestion('¿Dónde es el PPO de mañana?')">📍 PPO</button>
+                        <button class="suggestion-btn" onclick="sendSuggestion('¿Dónde está mi hotel?')">🏨 Hotel</button>
+                        <button class="suggestion-btn" onclick="sendSuggestion('¿Cuál es la ruta de hoy?')">🗺️ Ruta</button>
+                        <button class="suggestion-btn" onclick="sendSuggestion('¿Cuál es el pronóstico?')">🌤️ Tiempo</button>
+                    </div>
+                    
+                    <div class="chat-footer">
+                        <textarea id="messageInput" placeholder="Escribe tu pregunta..." onkeypress="handleChatKeyPress(event)"></textarea>
+                        <button id="sendButton" onclick="sendMessage()">Enviar</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // Configuración de equipos
+        const TEAM_CONFIG = {
+            movistar: { name: 'Movistar', icon: '🟠', code: 'MOVISTAR2025' },
+            ineos: { name: 'Ineos Grenadiers', icon: '🔵', code: 'INEOS2025' },
+            jumbo: { name: 'Jumbo Visma', icon: '🟡', code: 'JUMBO2025' },
+            uae: { name: 'UAE Emirates', icon: '🔴', code: 'UAE2025' },
+            public: { name: 'Acceso Público', icon: '🌍', code: 'PUBLIC' }
+        };
+        
+        // Archivos de ejemplo por equipo (será reemplazado por API)
+        const TEAM_FILES = {
+            movistar: [
+                { id: '1', name: 'Ruta Etapa 1.gpx', type: 'gpx', icon: '🗺️' },
+                { id: '2', name: 'Hoteles.xlsx', type: 'excel', icon: '📊' },
+                { id: '3', name: 'Normas_Equipo.pdf', type: 'pdf', icon: '📄' }
+            ],
+            ineos: [
+                { id: '4', name: 'Track_Completo.gpx', type: 'gpx', icon: '🗺️' },
+                { id: '5', name: 'Calendario.xlsx', type: 'excel', icon: '📊' }
+            ],
+            jumbo: [
+                { id: '6', name: 'Ruta_Oficial.gpx', type: 'gpx', icon: '🗺️' },
+                { id: '7', name: 'Contactos.xlsx', type: 'excel', icon: '📊' }
+            ],
+            uae: [
+                { id: '8', name: 'Etapas.gpx', type: 'gpx', icon: '🗺️' }
+            ],
+            public: [
+                { id: '9', name: 'Información General.pdf', type: 'pdf', icon: '📄' }
+            ]
+        };
+        
+        // Estado de sesión actual
+        let currentSession = null;
+        
+        // Login
+        function handleLogin() {
+            const team = document.getElementById('teamSelect').value;
+            const code = document.getElementById('accessCode').value;
+            const errorDiv = document.getElementById('errorMessage');
+            
+            if (!team || !code) {
+                errorDiv.textContent = '❌ Selecciona equipo e ingresa código';
+                errorDiv.style.display = 'block';
+                return;
+            }
+            
+            const config = TEAM_CONFIG[team];
+            if (code !== config.code) {
+                errorDiv.textContent = '❌ Código incorrecto';
+                errorDiv.style.display = 'block';
+                return;
+            }
+            
+            errorDiv.style.display = 'none';
+            startSession(team);
+        }
+        
+        function accessPublic() {
+            startSession('public');
+        }
+        
+        function startSession(team) {
+            currentSession = { team: team, history: [] };
+            
+            const config = TEAM_CONFIG[team];
+            document.getElementById('teamIcon').textContent = config.icon;
+            document.getElementById('teamName').textContent = config.name;
+            document.getElementById('teamSubtitle').textContent = 'Agentes IA 2025';
+            
+            document.getElementById('loginScreen').style.display = 'none';
+            document.getElementById('app').classList.add('active');
+            
+            // Agregar mensaje de bienvenida
+            addMessage(
+                `¡Hola ${config.name}! 👋<br><br>
+                Soy tu asistente inteligente. Puedo:<br>
+                • 📁 Acceder a tus archivos en Drive<br>
+                • 📊 Procesar datos de Excel<br>
+                • 🗺️ Leer y analizar GPX<br>
+                • 🔗 Generar links a Google Maps<br><br>
+                ¿En qué puedo ayudarte?`,
+                'agent'
+            );
+            
+            loadFiles();
+        }
+        
+        function handleLogout() {
+            currentSession = null;
+            document.getElementById('app').classList.remove('active');
+            document.getElementById('loginScreen').style.display = 'block';
+            document.getElementById('accessCode').value = '';
+            document.getElementById('messages').innerHTML = '';
+        }
+        
+        // Cargar archivos
+        function loadFiles() {
+            const filesList = document.getElementById('filesList');
+            const files = TEAM_FILES[currentSession.team] || [];
+            
+            filesList.innerHTML = files.map(file => `
+                <div class="file-item">
+                    <div class="file-icon">${file.icon}</div>
+                    <div class="file-info">
+                        <div class="file-name">${file.name}</div>
+                        <div class="file-type">${file.type.toUpperCase()}</div>
+                    </div>
+                    <div class="file-actions">
+                        <button class="file-action-btn" onclick="consultFile('${file.id}')" title="Consultar">
+                            💬
+                        </button>
+                        ${file.type === 'gpx' ? `
+                            <button class="file-action-btn" onclick="downloadFile('${file.id}')" title="Descargar">
+                                ⬇️
+                            </button>
+                            <button class="file-action-btn" onclick="openInMaps('${file.id}')" title="Ver en Maps">
+                                🗺️
+                            </button>
+                        ` : ''}
+                    </div>
+                </div>
+            `).join('');
+        }
+        
+        // Acciones de archivos
+        function consultFile(fileId) {
+            const files = TEAM_FILES[currentSession.team];
+            const file = files.find(f => f.id === fileId);
+            
+            if (file) {
+                sendMessage(`Lee y resume el archivo: ${file.name}`);
+            }
+        }
+        
+        function downloadFile(fileId) {
+            const files = TEAM_FILES[currentSession.team];
+            const file = files.find(f => f.id === fileId);
+            
+            if (file) {
+                alert(`📥 Descargando: ${file.name}\n\nEn producción se descargará desde Google Drive.`);
+            }
+        }
+        
+        function openInMaps(fileId) {
+            const files = TEAM_FILES[currentSession.team];
+            const file = files.find(f => f.id === fileId);
+            
+            if (file) {
+                const coords = '42.8782,-8.5448';
+                const mapsUrl = `https://www.google.com/maps?q=${coords}`;
+                
+                window.open(mapsUrl, '_blank');
+                
+                addMessage(
+                    `✅ Abriendo <strong>${file.name}</strong> en Google Maps...<br><br>` +
+                    `🗺️ <a href="${mapsUrl}" target="_blank">Click aquí si no se abrió automáticamente</a>`,
+                    'agent'
+                );
+            }
+        }
+        
+        // Chat
+        function handleChatKeyPress(event) {
+            if (event.key === 'Enter' && !event.shiftKey) {
+                event.preventDefault();
+                sendMessage();
+            }
+        }
+        
+        function sendSuggestion(text) {
+            document.getElementById('messageInput').value = text;
+            sendMessage();
+        }
+        
+        async function sendMessage(customMessage) {
+            const input = document.getElementById('messageInput');
+            const sendButton = document.getElementById('sendButton');
+            const message = customMessage || input.value.trim();
+            
+            if (!message) return;
+            
+            input.value = '';
+            input.disabled = true;
+            sendButton.disabled = true;
+            
+            addMessage(message, 'user');
+            showTyping();
+            
+            try {
+                await new Promise(resolve => setTimeout(resolve, 1500));
+                
+                const response = generateResponse(message);
+                hideTyping();
+                addMessage(response, 'agent');
+                
+            } catch (error) {
+                hideTyping();
+                addMessage('❌ Error al procesar tu mensaje. Intenta de nuevo.', 'agent');
+            } finally {
+                input.disabled = false;
+                sendButton.disabled = false;
+                input.focus();
+            }
+        }
+        
+        function generateResponse(message) {
+            const lower = message.toLowerCase();
+            
+            if (lower.includes('ppo') || lower.includes('punto de salida') || lower.includes('donde sali')) {
+                return `📍 <strong>PPO Etapa 2 (mañana):</strong><br><br>
+                        📌 Plaza de España, Marín<br>
+                        ⏰ Horario: 11:30 - 12:15h<br>
+                        🚗 Llegada al PPO: 11:00h<br><br>
+                        🗺️ <a href="https://www.google.com/maps/search/?api=1&query=Plaza+España+Marín" target="_blank">Ver en Google Maps</a><br><br>
+                        💡 Transfer desde hotel sale a las 10:45h`;
+            }
+            
+            if (lower.includes('hotel') || lower.includes('dorm')) {
+                return `🏨 <strong>Hotel de hoy:</strong><br><br>
+                        <strong>Parador de Pontevedra</strong><br>
+                        📍 Calle Baron 19, 36002 Pontevedra<br>
+                        📞 +34 986 855 800<br><br>
+                        ⏰ Check-in: 18:00h<br>
+                        🍽️ Cena: 20:30h<br>
+                        🚗 Parking disponible<br><br>
+                        🗺️ <a href="https://www.google.com/maps/search/?api=1&query=Parador+Pontevedra" target="_blank">Cómo llegar</a>`;
+            }
+            
+            if (lower.includes('track') || lower.includes('maps') || lower.includes('ruta')) {
+                return `🗺️ <strong>Ruta Etapa 2:</strong><br><br>
+                        📏 Marín → A Estrada (145 km)<br>
+                        ⛰️ Desnivel: +1,850m<br><br>
+                        <strong>Opciones:</strong><br>
+                        📥 <a href="#" onclick="downloadFile('5')">Descargar GPX</a><br>
+                        🗺️ <a href="https://www.google.com/maps/dir/Marín/A+Estrada" target="_blank">Ver en Google Maps</a><br><br>
+                        💡 También puedes hacer click en el archivo GPX en la barra lateral`;
+            }
+            
+            if (lower.includes('tiempo') || lower.includes('clima')) {
+                return `🌤️ <strong>Pronóstico mañana:</strong><br><br>
+                        🌡️ 15-22°C<br>
+                        ☀️ Mayormente soleado<br>
+                        💨 Viento SO 12 km/h<br>
+                        💧 Lluvia: 10%<br><br>
+                        ✅ Condiciones buenas para la etapa`;
+            }
+            
+            if (lower.includes('lee') || lower.includes('archivo') || lower.includes('documento')) {
+                return `📄 <strong>Analizando documento...</strong><br><br>
+                        He leído el archivo. Aquí está el resumen:<br><br>
+                        [En producción, aquí aparecería el contenido real del PDF/Excel leído desde Drive]<br><br>
+                        ¿Necesitas algún detalle específico?`;
+            }
+            
+            return `Entiendo tu consulta sobre: "${message}"<br><br>
+                    En la versión completa puedo:<br>
+                    • Leer TODOS tus PDFs y Excel de Drive<br>
+                    • Descargar tracks GPX<br>
+                    • Abrir rutas en Google Maps<br>
+                    • Darte cualquier información<br><br>
+                    ¿Hay algo específico que necesites?`;
+        }
+        
+        function addMessage(text, sender) {
+            const messagesDiv = document.getElementById('messages');
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${sender}`;
+            
+            const avatar = sender === 'user' ? '👤' : TEAM_CONFIG[currentSession.team].icon;
+            
+            messageDiv.innerHTML = `
+                <div class="message-avatar">${avatar}</div>
+                <div class="message-content">${text}</div>
+            `;
+            
+            messagesDiv.appendChild(messageDiv);
+            messagesDiv.scrollTop = messagesDiv.scrollHeight;
+        }
+        
+        function showTyping() {
+            const messagesDiv = document.getElementById('messages');
+            const typingDiv = document.createElement('div');
+            typingDiv.className = 'message agent';
+            typingDiv.id = 'typing-indicator';
+            
+            typingDiv.innerHTML = `
+                <div class="message-avatar">${TEAM_CONFIG[currentSession.team].icon}</div>
+                <div class="typing-indicator">
+                    <div class="typing-dot"></div>
+                    <div class="typing-dot"></div>
+                    <div class="typing-dot"></div>
+                </div>
+            `;
+            
+            messagesDiv.appendChild(typingDiv);
+            messagesDiv.scrollTop = messagesDiv.scrollHeight;
+        }
+        
+        function hideTyping() {
+            const typing = document.getElementById('typing-indicator');
+            if (typing) typing.remove();
+        }
+        
+        document.addEventListener('DOMContentLoaded', function() {
+            const textarea = document.getElementById('messageInput');
+            if (textarea) {
+                textarea.addEventListener('input', function() {
+                    this.style.height = 'auto';
+                    this.style.height = Math.min(this.scrollHeight, 120) + 'px';
+                });
+            }
+        });
+    </script>
+</body>
+</html>
