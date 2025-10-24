@@ -592,7 +592,7 @@
             const filesList = document.getElementById('filesList');
             filesList.innerHTML = '<div style="color: #94a3b8; text-align: center; padding: 20px;">Cargando desde Drive...</div>';
             
-            fetch('/api/chat?team=' + currentSession.team)
+            fetch('/api/chat/files') + currentSessioneam)
                 .then(res => res.json())
                 .then(data => {
                     const files = data.files || [];
