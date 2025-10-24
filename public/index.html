@@ -23,6 +23,7 @@
             margin: 0 auto;
         }
         
+        /* ========== LOGIN SCREEN ========== */
         .login-screen {
             max-width: 500px;
             margin: 100px auto;
@@ -30,12 +31,18 @@
             padding: 40px;
             border-radius: 20px;
             box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            display: block;
+        }
+        
+        .login-screen.hidden {
+            display: none;
         }
         
         .login-screen h1 {
             text-align: center;
             margin-bottom: 10px;
             color: #1e293b;
+            font-size: 2rem;
         }
         
         .login-screen p {
@@ -62,6 +69,11 @@
             border-radius: 10px;
             font-size: 1rem;
             outline: none;
+            cursor: pointer;
+        }
+        
+        .team-select select:focus {
+            border-color: #667eea;
         }
         
         .code-input {
@@ -106,6 +118,11 @@
             box-shadow: 0 8px 20px rgba(102, 126, 234, 0.4);
         }
         
+        .login-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+        
         .public-access {
             text-align: center;
             margin-top: 20px;
@@ -113,14 +130,17 @@
             border-top: 1px solid #e5e7eb;
         }
         
-        .public-access a {
+        .public-access button {
+            background: none;
+            border: none;
             color: #667eea;
             text-decoration: none;
             font-weight: 600;
             cursor: pointer;
+            font-size: 1rem;
         }
         
-        .public-access a:hover {
+        .public-access button:hover {
             text-decoration: underline;
         }
         
@@ -135,6 +155,11 @@
             display: none;
         }
         
+        .error-message.show {
+            display: block;
+        }
+        
+        /* ========== APP SCREEN ========== */
         .app {
             display: none;
         }
@@ -178,6 +203,7 @@
         
         .app-header-text p {
             color: #64748b;
+            font-size: 0.9rem;
         }
         
         .logout-btn {
@@ -187,6 +213,7 @@
             border-radius: 8px;
             cursor: pointer;
             transition: all 0.2s;
+            font-weight: 600;
         }
         
         .logout-btn:hover {
@@ -200,6 +227,7 @@
             gap: 20px;
         }
         
+        /* ========== SIDEBAR ========== */
         .sidebar {
             background: white;
             border-radius: 16px;
@@ -211,10 +239,11 @@
         .sidebar h3 {
             margin-bottom: 15px;
             color: #1e293b;
+            font-size: 1.1rem;
         }
         
         .files-list {
-            max-height: 500px;
+            max-height: 600px;
             overflow-y: auto;
         }
         
@@ -237,6 +266,7 @@
         
         .file-icon {
             font-size: 1.5rem;
+            min-width: 30px;
         }
         
         .file-info {
@@ -245,27 +275,41 @@
         }
         
         .file-name {
-            font-size: 0.85rem;
-            font-weight: 500;
+            font-weight: 600;
             color: #1e293b;
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
+            font-size: 0.9rem;
         }
         
         .file-type {
-            font-size: 0.7rem;
+            font-size: 0.8rem;
             color: #94a3b8;
-            margin-top: 2px;
         }
         
+        .loading-text {
+            color: #94a3b8;
+            text-align: center;
+            padding: 20px;
+            font-size: 0.9rem;
+        }
+        
+        .error-text {
+            color: #dc2626;
+            text-align: center;
+            padding: 20px;
+            font-size: 0.9rem;
+        }
+        
+        /* ========== CHAT CONTAINER ========== */
         .chat-container {
             background: white;
             border-radius: 16px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
             display: flex;
             flex-direction: column;
-            height: 600px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            height: 700px;
         }
         
         .chat-header {
@@ -286,13 +330,24 @@
             padding: 20px;
             display: flex;
             flex-direction: column;
-            gap: 12px;
+            gap: 15px;
         }
         
         .message {
             display: flex;
-            gap: 12px;
-            align-items: flex-end;
+            gap: 10px;
+            animation: fadeIn 0.3s ease-in;
+        }
+        
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
         
         .message.user {
@@ -300,20 +355,21 @@
         }
         
         .message-avatar {
-            width: 32px;
-            height: 32px;
-            border-radius: 50%;
+            font-size: 1.5rem;
+            min-width: 40px;
             display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.2rem;
-            flex-shrink: 0;
+            align-items: flex-end;
+        }
+        
+        .message.user .message-avatar {
+            order: 2;
         }
         
         .message-content {
-            max-width: 70%;
+            max-width: 60%;
             padding: 12px 16px;
             border-radius: 12px;
+            word-wrap: break-word;
             line-height: 1.5;
         }
         
@@ -323,22 +379,32 @@
         }
         
         .message.user .message-content {
-            background: #667eea;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
+        }
+        
+        .message-content a {
+            color: inherit;
+            text-decoration: underline;
+            font-weight: 600;
+        }
+        
+        .message.user .message-content a {
+            color: #fff;
         }
         
         .typing-indicator {
             display: flex;
             gap: 4px;
-            align-items: center;
+            align-items: flex-end;
         }
         
         .typing-dot {
             width: 8px;
             height: 8px;
+            background: #94a3b8;
             border-radius: 50%;
-            background: #667eea;
-            animation: bounce 1.4s infinite;
+            animation: typing 1.4s infinite;
         }
         
         .typing-dot:nth-child(2) {
@@ -349,115 +415,119 @@
             animation-delay: 0.4s;
         }
         
-        @keyframes bounce {
-            0%, 80%, 100% {
-                transform: scale(0.8);
-                opacity: 0.5;
-            }
-            40% {
-                transform: scale(1);
-                opacity: 1;
-            }
-        }
-        
-        .chat-footer {
-            padding: 16px;
-            border-top: 1px solid #e5e7eb;
-            display: flex;
-            gap: 10px;
-        }
-        
-        #messageInput {
-            flex: 1;
-            padding: 10px 14px;
-            border: 1px solid #e5e7eb;
-            border-radius: 8px;
-            font-size: 0.95rem;
-            font-family: inherit;
-            resize: none;
-            max-height: 120px;
-            outline: none;
-        }
-        
-        #messageInput:focus {
-            border-color: #667eea;
-        }
-        
-        #sendButton {
-            padding: 10px 20px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            border: none;
-            border-radius: 8px;
-            cursor: pointer;
-            font-weight: 600;
-            transition: all 0.2s;
-        }
-        
-        #sendButton:hover {
-            transform: translateY(-2px);
-        }
-        
-        #sendButton:disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
+        @keyframes typing {
+            0%, 60%, 100% { transform: translateY(0); }
+            30% { transform: translateY(-10px); }
         }
         
         .suggestions {
-            padding: 20px;
-            background: #f8fafc;
-            border-top: 1px solid #e5e7eb;
+            padding: 15px 20px;
+            border-bottom: 1px solid #e5e7eb;
             display: flex;
             gap: 10px;
-            flex-wrap: wrap;
+            overflow-x: auto;
         }
         
         .suggestion-btn {
-            padding: 8px 14px;
-            background: white;
+            padding: 8px 12px;
+            background: #f1f5f9;
             border: 1px solid #e5e7eb;
             border-radius: 8px;
             cursor: pointer;
-            font-size: 0.85rem;
+            white-space: nowrap;
+            font-size: 0.9rem;
             transition: all 0.2s;
         }
         
         .suggestion-btn:hover {
+            background: #e0e7ff;
             border-color: #667eea;
-            background: #eff6ff;
         }
         
+        .chat-footer {
+            padding: 20px;
+            border-top: 1px solid #e5e7eb;
+            display: flex;
+            gap: 10px;
+        }
+        
+        .chat-footer textarea {
+            flex: 1;
+            padding: 12px;
+            border: 2px solid #e5e7eb;
+            border-radius: 10px;
+            font-size: 1rem;
+            font-family: inherit;
+            resize: none;
+            outline: none;
+            min-height: 50px;
+            max-height: 120px;
+        }
+        
+        .chat-footer textarea:focus {
+            border-color: #667eea;
+        }
+        
+        .chat-footer button {
+            padding: 12px 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.2s;
+            white-space: nowrap;
+        }
+        
+        .chat-footer button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(102, 126, 234, 0.4);
+        }
+        
+        .chat-footer button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+        
+        /* ========== RESPONSIVE ========== */
         @media (max-width: 768px) {
             .main-content {
                 grid-template-columns: 1fr;
             }
             
-            .sidebar {
-                display: none;
+            .chat-container {
+                height: 500px;
             }
             
             .message-content {
-                max-width: 90%;
+                max-width: 85%;
+            }
+            
+            .login-screen {
+                margin: 50px auto;
+                padding: 20px;
             }
         }
     </style>
 </head>
 <body>
     <div class="container">
+        <!-- LOGIN SCREEN -->
         <div id="loginScreen" class="login-screen">
             <h1>🚴 O Gran Camiño</h1>
             <p>Agentes IA 2025</p>
             
-            <div class="error-message" id="errorMessage"></div>
+            <div id="errorMessage" class="error-message"></div>
             
             <div class="team-select">
                 <label>Selecciona tu equipo:</label>
                 <select id="teamSelect">
-                    <option value="">-- Selecciona equipo --</option>
-                    <option value="movistar">🟠 Movistar</option>
-                    <option value="ineos">🔵 Ineos</option>
-                    <option value="jumbo">🟡 Jumbo</option>
-                    <option value="uae">🔴 UAE</option>
+                    <option value="">-- Elige un equipo --</option>
+                    <option value="movistar">🟠 Movistar Team</option>
+                    <option value="ineos">🔵 Ineos Grenadiers</option>
+                    <option value="jumbo">🟡 Jumbo Visma</option>
+                    <option value="uae">🔴 UAE Emirates</option>
                 </select>
             </div>
             
@@ -469,32 +539,33 @@
             <button class="login-btn" onclick="handleLogin()">Entrar</button>
             
             <div class="public-access">
-                <a onclick="accessPublic(); return false;">Acceso público →</a>
+                <button onclick="accessPublic()">Acceso público →</button>
             </div>
         </div>
         
+        <!-- APP -->
         <div id="app" class="app">
             <div class="app-header">
                 <div class="app-header-info">
-                    <div class="team-avatar" id="teamIcon">🚴</div>
+                    <div class="team-avatar" id="teamIcon">🌍</div>
                     <div class="app-header-text">
                         <h1 id="teamName">O Gran Camiño</h1>
-                        <p id="teamSubtitle">Agentes IA</p>
+                        <p id="teamSubtitle">Agentes IA 2025</p>
                     </div>
                 </div>
                 <button class="logout-btn" onclick="handleLogout()">Salir</button>
             </div>
             
             <div class="main-content">
+                <!-- SIDEBAR -->
                 <div class="sidebar">
                     <h3>📁 Archivos</h3>
                     <div class="files-list" id="filesList">
-                        <div style="color: #94a3b8; text-align: center; padding: 20px;">
-                            Cargando archivos...
-                        </div>
+                        <div class="loading-text">Cargando archivos...</div>
                     </div>
                 </div>
                 
+                <!-- CHAT -->
                 <div class="chat-container">
                     <div class="chat-header">
                         <h2>💬 Asistente O Gran Camiño</h2>
@@ -519,34 +590,44 @@
     
     <script>
         const TEAM_CONFIG = {
-            movistar: { name: 'Movistar', icon: '🟠', code: 'MOVISTAR2025' },
+            movistar: { name: 'Movistar Team', icon: '🟠', code: 'MOVISTAR2025' },
             ineos: { name: 'Ineos Grenadiers', icon: '🔵', code: 'INEOS2025' },
             jumbo: { name: 'Jumbo Visma', icon: '🟡', code: 'JUMBO2025' },
             uae: { name: 'UAE Emirates', icon: '🔴', code: 'UAE2025' },
-            public: { name: 'Acceso Público', icon: '🌍', code: 'PUBLIC' }
+            public: { name: 'Acceso Público', icon: '🌍', code: null }
         };
         
         let currentSession = null;
         
+        function showError(message) {
+            const errorDiv = document.getElementById('errorMessage');
+            errorDiv.textContent = message;
+            errorDiv.classList.add('show');
+            setTimeout(() => {
+                errorDiv.classList.remove('show');
+            }, 5000);
+        }
+        
         function handleLogin() {
             const team = document.getElementById('teamSelect').value;
             const code = document.getElementById('accessCode').value;
-            const errorDiv = document.getElementById('errorMessage');
             
-            if (!team || !code) {
-                errorDiv.textContent = '❌ Selecciona equipo e ingresa código';
-                errorDiv.style.display = 'block';
+            if (!team) {
+                showError('❌ Selecciona un equipo');
+                return;
+            }
+            
+            if (!code) {
+                showError('❌ Ingresa el código de acceso');
                 return;
             }
             
             const config = TEAM_CONFIG[team];
             if (code !== config.code) {
-                errorDiv.textContent = '❌ Código incorrecto';
-                errorDiv.style.display = 'block';
+                showError('❌ Código incorrecto');
                 return;
             }
             
-            errorDiv.style.display = 'none';
             startSession(team);
         }
         
@@ -562,7 +643,7 @@
             document.getElementById('teamName').textContent = config.name;
             document.getElementById('teamSubtitle').textContent = 'Agentes IA 2025';
             
-            document.getElementById('loginScreen').style.display = 'none';
+            document.getElementById('loginScreen').classList.add('hidden');
             document.getElementById('app').classList.add('active');
             
             addMessage(
@@ -583,37 +664,45 @@
         function handleLogout() {
             currentSession = null;
             document.getElementById('app').classList.remove('active');
-            document.getElementById('loginScreen').style.display = 'block';
+            document.getElementById('loginScreen').classList.remove('hidden');
             document.getElementById('accessCode').value = '';
             document.getElementById('messages').innerHTML = '';
+            document.getElementById('filesList').innerHTML = '<div class="loading-text">Cargando archivos...</div>';
         }
         
-        function loadFiles() {
+        async function loadFiles() {
             const filesList = document.getElementById('filesList');
-            filesList.innerHTML = '<div style="color: #94a3b8; text-align: center; padding: 20px;">Cargando desde Drive...</div>';
+            filesList.innerHTML = '<div class="loading-text">Cargando desde Drive...</div>';
             
-            fetch('/api/chat/files') + currentSessioneam)
-                .then(res => res.json())
-                .then(data => {
-                    const files = data.files || [];
-                    if (files.length === 0) {
-                        filesList.innerHTML = '<div style="color: #94a3b8; text-align: center; padding: 20px;">No hay archivos disponibles</div>';
-                        return;
-                    }
-                    filesList.innerHTML = files.slice(0, 10).map(file => `
-                        <div class="file-item">
-                            <div class="file-icon">${getFileIcon(file.type)}</div>
-                            <div class="file-info">
-                                <div class="file-name">${file.name}</div>
-                                <div class="file-type">${file.type}</div>
-                            </div>
+            try {
+                const response = await fetch('/api/chat/files');
+                const data = await response.json();
+                
+                if (!response.ok) {
+                    throw new Error(data.error || 'Error al cargar archivos');
+                }
+                
+                const files = data.files || [];
+                
+                if (files.length === 0) {
+                    filesList.innerHTML = '<div class="loading-text">No hay archivos disponibles</div>';
+                    return;
+                }
+                
+                filesList.innerHTML = files.slice(0, 20).map(file => `
+                    <div class="file-item">
+                        <div class="file-icon">${getFileIcon(file.type)}</div>
+                        <div class="file-info">
+                            <div class="file-name">${file.name}</div>
+                            <div class="file-type">${file.type}</div>
                         </div>
-                    `).join('');
-                })
-                .catch(err => {
-                    console.error('Error:', err);
-                    filesList.innerHTML = '<div style="color: #94a3b8; text-align: center; padding: 20px;">Error al cargar archivos</div>';
-                });
+                    </div>
+                `).join('');
+                
+            } catch (error) {
+                console.error('Error loading files:', error);
+                filesList.innerHTML = '<div class="error-text">⚠️ Error al cargar archivos</div>';
+            }
         }
         
         function getFileIcon(type) {
@@ -639,10 +728,10 @@
             sendMessage();
         }
         
-        async function sendMessage(customMessage) {
+        async function sendMessage() {
             const input = document.getElementById('messageInput');
             const sendButton = document.getElementById('sendButton');
-            const message = customMessage || input.value.trim();
+            const message = input.value.trim();
             
             if (!message) return;
             
@@ -727,6 +816,7 @@
             if (typing) typing.remove();
         }
         
+        // Auto-resize textarea
         document.addEventListener('DOMContentLoaded', function() {
             const textarea = document.getElementById('messageInput');
             if (textarea) {
