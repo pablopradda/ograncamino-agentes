@@ -444,7 +444,6 @@
             background: #eff6ff;
         }
         
-        /* Responsive */
         @media (max-width: 768px) {
             .main-content {
                 grid-template-columns: 1fr;
@@ -462,7 +461,6 @@
 </head>
 <body>
     <div class="container">
-        <!-- Login Screen -->
         <div id="loginScreen" class="login-screen">
             <h1>🚴 O Gran Camiño</h1>
             <p>Agentes IA 2025</p>
@@ -492,9 +490,7 @@
             </div>
         </div>
         
-        <!-- Main App -->
         <div id="app" class="app">
-            <!-- Header -->
             <div class="app-header">
                 <div class="app-header-info">
                     <div class="team-avatar" id="teamIcon">🚴</div>
@@ -506,9 +502,7 @@
                 <button class="logout-btn" onclick="handleLogout()">Salir</button>
             </div>
             
-            <!-- Main Content -->
             <div class="main-content">
-                <!-- Sidebar -->
                 <div class="sidebar">
                     <h3>📁 Archivos</h3>
                     <div class="files-list" id="filesList">
@@ -518,7 +512,6 @@
                     </div>
                 </div>
                 
-                <!-- Chat -->
                 <div class="chat-container">
                     <div class="chat-header">
                         <h2>💬 Asistente O Gran Camiño</h2>
@@ -527,9 +520,9 @@
                     <div class="messages" id="messages"></div>
                     
                     <div class="suggestions" id="suggestions">
-                        <button class="suggestion-btn" onclick="sendSuggestion('¿Dónde es el PPO de mañana?')">📍 PPO</button>
+                        <button class="suggestion-btn" onclick="sendSuggestion('¿Dónde es el PPO?')">📍 PPO</button>
                         <button class="suggestion-btn" onclick="sendSuggestion('¿Dónde está mi hotel?')">🏨 Hotel</button>
-                        <button class="suggestion-btn" onclick="sendSuggestion('¿Cuál es la ruta de hoy?')">🗺️ Ruta</button>
+                        <button class="suggestion-btn" onclick="sendSuggestion('¿Cuál es la ruta?')">🗺️ Ruta</button>
                         <button class="suggestion-btn" onclick="sendSuggestion('¿Cuál es el pronóstico?')">🌤️ Tiempo</button>
                     </div>
                     
@@ -543,7 +536,6 @@
     </div>
     
     <script>
-        // Configuración de equipos
         const TEAM_CONFIG = {
             movistar: { name: 'Movistar', icon: '🟠', code: 'MOVISTAR2025' },
             ineos: { name: 'Ineos Grenadiers', icon: '🔵', code: 'INEOS2025' },
@@ -552,33 +544,16 @@
             public: { name: 'Acceso Público', icon: '🌍', code: 'PUBLIC' }
         };
         
-        // Archivos de ejemplo por equipo (será reemplazado por API)
         const TEAM_FILES = {
-            movistar: [
-                { id: '1', name: 'Ruta Etapa 1.gpx', type: 'gpx', icon: '🗺️' },
-                { id: '2', name: 'Hoteles.xlsx', type: 'excel', icon: '📊' },
-                { id: '3', name: 'Normas_Equipo.pdf', type: 'pdf', icon: '📄' }
-            ],
-            ineos: [
-                { id: '4', name: 'Track_Completo.gpx', type: 'gpx', icon: '🗺️' },
-                { id: '5', name: 'Calendario.xlsx', type: 'excel', icon: '📊' }
-            ],
-            jumbo: [
-                { id: '6', name: 'Ruta_Oficial.gpx', type: 'gpx', icon: '🗺️' },
-                { id: '7', name: 'Contactos.xlsx', type: 'excel', icon: '📊' }
-            ],
-            uae: [
-                { id: '8', name: 'Etapas.gpx', type: 'gpx', icon: '🗺️' }
-            ],
-            public: [
-                { id: '9', name: 'Información General.pdf', type: 'pdf', icon: '📄' }
-            ]
+            movistar: [],
+            ineos: [],
+            jumbo: [],
+            uae: [],
+            public: []
         };
         
-        // Estado de sesión actual
         let currentSession = null;
         
-        // Login
         function handleLogin() {
             const team = document.getElementById('teamSelect').value;
             const code = document.getElementById('accessCode').value;
@@ -616,14 +591,13 @@
             document.getElementById('loginScreen').style.display = 'none';
             document.getElementById('app').classList.add('active');
             
-            // Agregar mensaje de bienvenida
             addMessage(
                 `¡Hola ${config.name}! 👋<br><br>
-                Soy tu asistente inteligente. Puedo:<br>
-                • 📁 Acceder a tus archivos en Drive<br>
-                • 📊 Procesar datos de Excel<br>
-                • 🗺️ Leer y analizar GPX<br>
-                • 🔗 Generar links a Google Maps<br><br>
+                Soy tu asistente inteligente. Pregúntame sobre:<br>
+                • 📁 Tus archivos en Drive<br>
+                • 🗺️ Rutas y tracks GPX<br>
+                • 📊 Datos de hoteles y calendarios<br>
+                • 🔗 Información de Google Maps<br><br>
                 ¿En qué puedo ayudarte?`,
                 'agent'
             );
@@ -639,73 +613,44 @@
             document.getElementById('messages').innerHTML = '';
         }
         
-        // Cargar archivos
         function loadFiles() {
             const filesList = document.getElementById('filesList');
-            const files = TEAM_FILES[currentSession.team] || [];
+            filesList.innerHTML = '<div style="color: #94a3b8; text-align: center; padding: 20px;">Cargando desde Drive...</div>';
             
-            filesList.innerHTML = files.map(file => `
-                <div class="file-item">
-                    <div class="file-icon">${file.icon}</div>
-                    <div class="file-info">
-                        <div class="file-name">${file.name}</div>
-                        <div class="file-type">${file.type.toUpperCase()}</div>
-                    </div>
-                    <div class="file-actions">
-                        <button class="file-action-btn" onclick="consultFile('${file.id}')" title="Consultar">
-                            💬
-                        </button>
-                        ${file.type === 'gpx' ? `
-                            <button class="file-action-btn" onclick="downloadFile('${file.id}')" title="Descargar">
-                                ⬇️
-                            </button>
-                            <button class="file-action-btn" onclick="openInMaps('${file.id}')" title="Ver en Maps">
-                                🗺️
-                            </button>
-                        ` : ''}
-                    </div>
-                </div>
-            `).join('');
+            fetch('/api/chat/files')
+                .then(res => res.json())
+                .then(data => {
+                    const files = data.files || [];
+                    if (files.length === 0) {
+                        filesList.innerHTML = '<div style="color: #94a3b8; text-align: center; padding: 20px;">No hay archivos</div>';
+                        return;
+                    }
+                    filesList.innerHTML = files.map(file => `
+                        <div class="file-item">
+                            <div class="file-icon">${getFileIcon(file.type)}</div>
+                            <div class="file-info">
+                                <div class="file-name">${file.name}</div>
+                                <div class="file-type">${file.type.toUpperCase()}</div>
+                            </div>
+                        </div>
+                    `).join('');
+                })
+                .catch(err => {
+                    filesList.innerHTML = '<div style="color: #94a3b8; text-align: center; padding: 20px;">Error al cargar archivos</div>';
+                });
         }
         
-        // Acciones de archivos
-        function consultFile(fileId) {
-            const files = TEAM_FILES[currentSession.team];
-            const file = files.find(f => f.id === fileId);
-            
-            if (file) {
-                sendMessage(`Lee y resume el archivo: ${file.name}`);
-            }
+        function getFileIcon(type) {
+            const icons = {
+                'excel': '📊',
+                'pdf': '📄',
+                'gpx': '🗺️',
+                'doc': '📝',
+                'file': '📎'
+            };
+            return icons[type] || '📎';
         }
         
-        function downloadFile(fileId) {
-            const files = TEAM_FILES[currentSession.team];
-            const file = files.find(f => f.id === fileId);
-            
-            if (file) {
-                alert(`📥 Descargando: ${file.name}\n\nEn producción se descargará desde Google Drive.`);
-            }
-        }
-        
-        function openInMaps(fileId) {
-            const files = TEAM_FILES[currentSession.team];
-            const file = files.find(f => f.id === fileId);
-            
-            if (file) {
-                const coords = '42.8782,-8.5448';
-                const mapsUrl = `https://www.google.com/maps?q=${coords}`;
-                
-                window.open(mapsUrl, '_blank');
-                
-                addMessage(
-                    `✅ Abriendo <strong>${file.name}</strong> en Google Maps...<br><br>` +
-                    `🗺️ <a href="${mapsUrl}" target="_blank">Click aquí si no se abrió automáticamente</a>`,
-                    'agent'
-                );
-            }
-        }
-        
-        // Chat
         function handleChatKeyPress(event) {
             if (event.key === 'Enter' && !event.shiftKey) {
                 event.preventDefault();
@@ -733,78 +678,36 @@
             showTyping();
             
             try {
-                await new Promise(resolve => setTimeout(resolve, 1500));
+                const response = await fetch('/api/chat', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        message: message,
+                        team: currentSession.team,
+                        history: currentSession.history
+                    })
+                });
                 
-                const response = generateResponse(message);
+                const data = await response.json();
+                
+                if (!response.ok) {
+                    throw new Error(data.error || 'Error del servidor');
+                }
+                
                 hideTyping();
-                addMessage(response, 'agent');
+                addMessage(data.response, 'agent');
+                
+                currentSession.history.push({ role: 'user', content: message });
+                currentSession.history.push({ role: 'assistant', content: data.response });
                 
             } catch (error) {
                 hideTyping();
-                addMessage('❌ Error al procesar tu mensaje. Intenta de nuevo.', 'agent');
+                addMessage('❌ Error: ' + error.message, 'agent');
             } finally {
                 input.disabled = false;
                 sendButton.disabled = false;
                 input.focus();
             }
-        }
-        
-        function generateResponse(message) {
-            const lower = message.toLowerCase();
-            
-            if (lower.includes('ppo') || lower.includes('punto de salida') || lower.includes('donde sali')) {
-                return `📍 <strong>PPO Etapa 2 (mañana):</strong><br><br>
-                        📌 Plaza de España, Marín<br>
-                        ⏰ Horario: 11:30 - 12:15h<br>
-                        🚗 Llegada al PPO: 11:00h<br><br>
-                        🗺️ <a href="https://www.google.com/maps/search/?api=1&query=Plaza+España+Marín" target="_blank">Ver en Google Maps</a><br><br>
-                        💡 Transfer desde hotel sale a las 10:45h`;
-            }
-            
-            if (lower.includes('hotel') || lower.includes('dorm')) {
-                return `🏨 <strong>Hotel de hoy:</strong><br><br>
-                        <strong>Parador de Pontevedra</strong><br>
-                        📍 Calle Baron 19, 36002 Pontevedra<br>
-                        📞 +34 986 855 800<br><br>
-                        ⏰ Check-in: 18:00h<br>
-                        🍽️ Cena: 20:30h<br>
-                        🚗 Parking disponible<br><br>
-                        🗺️ <a href="https://www.google.com/maps/search/?api=1&query=Parador+Pontevedra" target="_blank">Cómo llegar</a>`;
-            }
-            
-            if (lower.includes('track') || lower.includes('maps') || lower.includes('ruta')) {
-                return `🗺️ <strong>Ruta Etapa 2:</strong><br><br>
-                        📏 Marín → A Estrada (145 km)<br>
-                        ⛰️ Desnivel: +1,850m<br><br>
-                        <strong>Opciones:</strong><br>
-                        📥 <a href="#" onclick="downloadFile('5')">Descargar GPX</a><br>
-                        🗺️ <a href="https://www.google.com/maps/dir/Marín/A+Estrada" target="_blank">Ver en Google Maps</a><br><br>
-                        💡 También puedes hacer click en el archivo GPX en la barra lateral`;
-            }
-            
-            if (lower.includes('tiempo') || lower.includes('clima')) {
-                return `🌤️ <strong>Pronóstico mañana:</strong><br><br>
-                        🌡️ 15-22°C<br>
-                        ☀️ Mayormente soleado<br>
-                        💨 Viento SO 12 km/h<br>
-                        💧 Lluvia: 10%<br><br>
-                        ✅ Condiciones buenas para la etapa`;
-            }
-            
-            if (lower.includes('lee') || lower.includes('archivo') || lower.includes('documento')) {
-                return `📄 <strong>Analizando documento...</strong><br><br>
-                        He leído el archivo. Aquí está el resumen:<br><br>
-                        [En producción, aquí aparecería el contenido real del PDF/Excel leído desde Drive]<br><br>
-                        ¿Necesitas algún detalle específico?`;
-            }
-            
-            return `Entiendo tu consulta sobre: "${message}"<br><br>
-                    En la versión completa puedo:<br>
-                    • Leer TODOS tus PDFs y Excel de Drive<br>
-                    • Descargar tracks GPX<br>
-                    • Abrir rutas en Google Maps<br>
-                    • Darte cualquier información<br><br>
-                    ¿Hay algo específico que necesites?`;
         }
         
         function addMessage(text, sender) {
@@ -850,12 +753,4 @@
         document.addEventListener('DOMContentLoaded', function() {
             const textarea = document.getElementById('messageInput');
             if (textarea) {
-                textarea.addEventListener('input', function() {
-                    this.style.height = 'auto';
-                    this.style.height = Math.min(this.scrollHeight, 120) + 'px';
-                });
-            }
-        });
-    </script>
-</body>
-</html>
+                textarea.
