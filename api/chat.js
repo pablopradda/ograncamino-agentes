@@ -7,13 +7,41 @@ const anthropic = new Anthropic({
   apiKey: process.env.ANTHROPIC_API_KEY
 });
 
-// Cliente Google Drive
-const auth = new google.auth.GoogleAuth({
-  credentials: JSON.parse(process.env.GOOGLE_SERVICE_ACCOUNT || '{}'),
-  scopes: ['https://www.googleapis.com/auth/drive.readonly']
-});
+// Cliente Google Drive - Manejo seguro de credenciales
+let auth = null;
+let drive = null;
 
-const drive = google.drive({ version: 'v3', auth });
+try {
+  let credentials = null;
+  
+  if (process.env.GOOGLE_SERVICE_ACCOUNT) {
+    try {
+      // Intentar parsear como JSON directo
+      credentials = JSON.parse(process.env.GOOGLE_SERVICE_ACCOUNT);
+    } catch (e) {
+      // Si falla, intentar como base64
+      try {
+        credentials = JSON.parse(Buffer.from(process.env.GOOGLE_SERVICE_ACCOUNT, 'base64').toString());
+      } catch (e2) {
+        console.error('Error parsing credentials:', e2.message);
+        credentials = null;
+      }
+    }
+  }
+  
+  if (credentials && credentials.type === 'service_account') {
+    auth = new google.auth.GoogleAuth({
+      credentials: credentials,
+      scopes: ['https://www.googleapis.com/auth/drive.readonly']
+    });
+    drive = google.drive({ version: 'v3', auth });
+    console.log('✅ Google Drive initialized successfully');
+  } else {
+    console.warn('⚠️ Google Drive credentials not properly configured');
+  }
+} catch (error) {
+  console.error('❌ Error initializing Google Drive:', error.message);
+}
 
 // ID de la carpeta principal de Drive
 const MAIN_FOLDER_ID = process.env.DRIVE_FOLDER_ID || '1LMhvJktYAvY9MISgaQipiiCnttM838Sj';
@@ -23,6 +51,10 @@ const cache = new Map();
 
 // Listar archivos de Drive
 async function listDriveFiles(folderId = MAIN_FOLDER_ID) {
+  if (!drive) {
+    return [];
+  }
+
   const cacheKey = `files_${folderId}`;
   
   if (cache.has(cacheKey)) {
@@ -45,13 +77,17 @@ async function listDriveFiles(folderId = MAIN_FOLDER_ID) {
     
     return files;
   } catch (error) {
-    console.error('Error listing files:', error);
+    console.error('Error listing files:', error.message);
     return [];
   }
 }
 
 // Leer archivo de Drive
 async function readFileContent(fileId, mimeType) {
+  if (!drive) {
+    return null;
+  }
+
   try {
     if (mimeType === 'application/vnd.google-apps.document') {
       const response = await drive.files.export({
@@ -68,7 +104,7 @@ async function readFileContent(fileId, mimeType) {
     
     return Buffer.from(response.data);
   } catch (error) {
-    console.error('Error reading file:', error);
+    console.error('Error reading file:', error.message);
     return null;
   }
 }
@@ -89,7 +125,7 @@ async function processExcel(fileId) {
     
     return result;
   } catch (error) {
-    console.error('Error processing Excel:', error);
+    console.error('Error processing Excel:', error.message);
     return { error: error.message };
   }
 }
@@ -135,7 +171,7 @@ async function processGPX(fileId) {
       downloadUrl: `https://drive.google.com/uc?export=download&id=${fileId}`
     };
   } catch (error) {
-    console.error('Error processing GPX:', error);
+    console.error('Error processing GPX:', error.message);
     return { error: error.message };
   }
 }
@@ -193,112 +229,4 @@ export default async function handler(req, res) {
   // CORS
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
-  
-  if (req.method === 'OPTIONS') {
-    return res.status(200).end();
-  }
-  
-  // GET /api/chat/files - Listar archivos
-  if (req.method === 'GET' && req.url.includes('/files')) {
-    try {
-      const files = await listDriveFiles();
-      
-      const formattedFiles = files.map(f => ({
-        id: f.id,
-        name: f.name,
-        type: f.mimeType.includes('spreadsheet') ? 'excel' :
-              f.mimeType.includes('pdf') ? 'pdf' :
-              f.name.endsWith('.gpx') ? 'gpx' :
-              f.mimeType.includes('document') ? 'doc' : 'file',
-        size: f.size,
-        modified: f.modifiedTime,
-        link: f.webViewLink
-      }));
-      
-      return res.status(200).json({ files: formattedFiles });
-    } catch (error) {
-      console.error('Error:', error);
-      return res.status(500).json({ error: 'Error al listar archivos' });
-    }
-  }
-  
-  // POST /api/chat/process-file - Procesar archivo
-  if (req.method === 'POST' && req.url.includes('/process-file')) {
-    try {
-      const { fileId, fileType } = req.body;
-      
-      let result = null;
-      
-      if (fileType === 'excel') {
-        result = await processExcel(fileId);
-      } else if (fileType === 'gpx') {
-        result = await processGPX(fileId);
-      } else {
-        const content = await readFileContent(fileId);
-        result = { content: content ? content.toString('utf8').substring(0, 10000) : null };
-      }
-      
-      return res.status(200).json({ data: result });
-    } catch (error) {
-      console.error('Error:', error);
-      return res.status(500).json({ error: 'Error al procesar archivo' });
-    }
-  }
-  
-  // POST /api/chat - Enviar mensaje
-  if (req.method === 'POST') {
-    try {
-      const { message, team, history = [] } = req.body;
-      
-      if (!message) {
-        return res.status(400).json({ error: 'Mensaje requerido' });
-      }
-      
-      const files = await listDriveFiles();
-      let context = '\n## ARCHIVOS DISPONIBLES EN DRIVE:\n';
-      files.forEach(file => {
-        context += `- ${file.name}\n`;
-      });
-      
-      const response = await anthropic.messages.create({
-        model: 'claude-sonnet-4-5-20250929',
-        max_tokens: 2048,
-        system: SYSTEM_PROMPT + context,
-        messages: [
-          ...history.slice(-6),
-          { role: 'user', content: message }
-        ]
-      });
-      
-      const responseText = response.content[0].text;
-      
-      console.log({
-        timestamp: new Date().toISOString(),
-        team,
-        tokens: response.usage.input_tokens + response.usage.output_tokens,
-        cost: ((response.usage.input_tokens * 3 + response.usage.output_tokens * 15) / 1000000).toFixed(4)
-      });
-      
-      return res.status(200).json({
-        response: responseText,
-        tokensUsed: response.usage
-      });
-      
-    } catch (error) {
-      console.error('Error:', error);
-      
-      if (error.status === 401) {
-        return res.status(500).json({ error: 'API key inválida' });
-      }
-      
-      if (error.status === 429) {
-        return res.status(429).json({ error: 'Demasiadas solicitudes' });
-      }
-      
-      return res.status(500).json({ error: 'Error interno del servidor' });
-    }
-  }
-  
-  return res.status(405).json({ error: 'Método no permitido' });
-}
+  res.setHeader
