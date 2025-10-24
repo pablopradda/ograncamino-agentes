@@ -74,19 +74,22 @@ export default async function handler(req, res) {
   if (req.method === 'OPTIONS') return res.status(200).end();
   
   try {
-    if (req.method === 'GET' && req.url.includes('/files')) {
-      const files = await listFiles();
-      const formatted = files.map(f => ({
-        id: f.id,
-        name: f.name,
-        type: f.name.match(/\.gpx$/i) ? 'gpx' : f.name.match(/\.kmz?$/i) ? 'kml' : 'file',
-        downloadUrl: f.name.match(/\.(gpx|kmz?|xlsx?|xls)$/i) ? getDownloadUrl(f.id) : null
-      }));
-      return res.json({ success: true, files: formatted });
-    }
-    
     if (req.method === 'POST') {
-      const { message, history = [] } = req.body;
+      const { message, history = [], action = 'chat' } = req.body;
+      
+      // Acción: listar archivos
+      if (action === 'listFiles') {
+        const files = await listFiles();
+        const formatted = files.map(f => ({
+          id: f.id,
+          name: f.name,
+          type: f.name.match(/\.gpx$/i) ? 'gpx' : f.name.match(/\.kmz?$/i) ? 'kml' : 'file',
+          downloadUrl: f.name.match(/\.(gpx|kmz?|xlsx?|xls)$/i) ? getDownloadUrl(f.id) : null
+        }));
+        return res.json({ success: true, files: formatted });
+      }
+      
+      // Acción: chat
       if (!message) return res.status(400).json({ success: false, error: 'Mensaje requerido' });
       
       const files = await listFiles();
