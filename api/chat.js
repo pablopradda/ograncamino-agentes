@@ -70,7 +70,6 @@ async function downloadAndReadGoogleSheet(sheetId) {
   if (!drive) return null;
   
   try {
-    // Exportar como Excel
     const response = await drive.files.export(
       { fileId: sheetId, mimeType: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' },
       { responseType: 'arraybuffer' }
@@ -139,6 +138,11 @@ async function listDriveFiles(folderId = MAIN_FOLDER_ID) {
   }
 }
 
+// CAMBIO 1: Función para generar URL de descarga
+function getDownloadUrl(fileId) {
+  return `https://drive.google.com/uc?export=download&id=${fileId}`;
+}
+
 // System Prompt
 const SYSTEM_PROMPT = `Eres el asistente inteligente de O Gran Camiño 2025.
 
@@ -186,7 +190,8 @@ export default async function handler(req, res) {
         type: f.mimeType.includes('spreadsheet') ? 'excel' :
               f.mimeType.includes('google-apps.spreadsheet') ? 'sheet' :
               f.name.endsWith('.gpx') ? 'gpx' : 'file',
-        mimeType: f.mimeType
+        mimeType: f.mimeType,
+        downloadUrl: f.name.match(/\.(gpx|kmz?|xlsx?|xls)$/i) ? getDownloadUrl(f.id) : null
       }));
       
       return res.status(200).json({ success: true, files: formattedFiles });
@@ -204,6 +209,9 @@ export default async function handler(req, res) {
       const files = await listDriveFiles();
       let context = '\n## DATOS DISPONIBLES EN DRIVE:\n\n';
       
+      // CAMBIO 2: Añadir links de descarga para GPX/KML
+      const trackFiles = files.filter(f => f.name.match(/\.(gpx|kmz?)$/i));
+      
       // Leer TODOS los archivos
       for (const file of files) {
         const content = await processFileContent(file);
@@ -214,6 +222,15 @@ export default async function handler(req, res) {
         } else {
           context += `\n### ${file.name} - [No se pudo leer]\n`;
         }
+      }
+      
+      // Añadir links de descarga al contexto
+      if (trackFiles.length > 0) {
+        context += '\n## ARCHIVOS DESCARGABLES (Rutas/Tracks):\n\n';
+        trackFiles.forEach(file => {
+          const type = file.name.match(/\.gpx$/i) ? 'GPX' : 'KML/KMZ';
+          context += `- 🗺️ ${file.name} (${type}): ${getDownloadUrl(file.id)}\n`;
+        });
       }
       
       // Crear prompt
