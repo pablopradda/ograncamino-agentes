@@ -23,7 +23,6 @@
             margin: 0 auto;
         }
         
-        /* Login Screen */
         .login-screen {
             max-width: 500px;
             margin: 100px auto;
@@ -118,6 +117,11 @@
             color: #667eea;
             text-decoration: none;
             font-weight: 600;
+            cursor: pointer;
+        }
+        
+        .public-access a:hover {
+            text-decoration: underline;
         }
         
         .error-message {
@@ -131,7 +135,6 @@
             display: none;
         }
         
-        /* Main App */
         .app {
             display: none;
         }
@@ -197,7 +200,6 @@
             gap: 20px;
         }
         
-        /* Sidebar - Archivos */
         .sidebar {
             background: white;
             border-radius: 16px;
@@ -257,25 +259,6 @@
             margin-top: 2px;
         }
         
-        .file-actions {
-            display: flex;
-            gap: 4px;
-        }
-        
-        .file-action-btn {
-            background: none;
-            border: none;
-            cursor: pointer;
-            font-size: 1rem;
-            padding: 4px;
-            transition: transform 0.2s;
-        }
-        
-        .file-action-btn:hover {
-            transform: scale(1.2);
-        }
-        
-        /* Chat Area */
         .chat-container {
             background: white;
             border-radius: 16px;
@@ -486,7 +469,7 @@
             <button class="login-btn" onclick="handleLogin()">Entrar</button>
             
             <div class="public-access">
-                <a href="#" onclick="accessPublic(); return false;">Acceso público →</a>
+                <a onclick="accessPublic(); return false;">Acceso público →</a>
             </div>
         </div>
         
@@ -519,11 +502,10 @@
                     
                     <div class="messages" id="messages"></div>
                     
-                    <div class="suggestions" id="suggestions">
+                    <div class="suggestions">
+                        <button class="suggestion-btn" onclick="sendSuggestion('¿Qué archivos tengo?')">📁 Archivos</button>
                         <button class="suggestion-btn" onclick="sendSuggestion('¿Dónde es el PPO?')">📍 PPO</button>
-                        <button class="suggestion-btn" onclick="sendSuggestion('¿Dónde está mi hotel?')">🏨 Hotel</button>
-                        <button class="suggestion-btn" onclick="sendSuggestion('¿Cuál es la ruta?')">🗺️ Ruta</button>
-                        <button class="suggestion-btn" onclick="sendSuggestion('¿Cuál es el pronóstico?')">🌤️ Tiempo</button>
+                        <button class="suggestion-btn" onclick="sendSuggestion('Información general')">ℹ️ Info</button>
                     </div>
                     
                     <div class="chat-footer">
@@ -542,14 +524,6 @@
             jumbo: { name: 'Jumbo Visma', icon: '🟡', code: 'JUMBO2025' },
             uae: { name: 'UAE Emirates', icon: '🔴', code: 'UAE2025' },
             public: { name: 'Acceso Público', icon: '🌍', code: 'PUBLIC' }
-        };
-        
-        const TEAM_FILES = {
-            movistar: [],
-            ineos: [],
-            jumbo: [],
-            uae: [],
-            public: []
         };
         
         let currentSession = null;
@@ -593,11 +567,12 @@
             
             addMessage(
                 `¡Hola ${config.name}! 👋<br><br>
-                Soy tu asistente inteligente. Pregúntame sobre:<br>
-                • 📁 Tus archivos en Drive<br>
-                • 🗺️ Rutas y tracks GPX<br>
-                • 📊 Datos de hoteles y calendarios<br>
-                • 🔗 Información de Google Maps<br><br>
+                Soy tu asistente inteligente de O Gran Camiño.<br>
+                Puedo ayudarte con:<br>
+                • 📁 Información de tus archivos<br>
+                • 🗺️ Rutas y tracks<br>
+                • 📊 Datos y horarios<br>
+                • 🔗 Enlaces a Google Maps<br><br>
                 ¿En qué puedo ayudarte?`,
                 'agent'
             );
@@ -617,25 +592,26 @@
             const filesList = document.getElementById('filesList');
             filesList.innerHTML = '<div style="color: #94a3b8; text-align: center; padding: 20px;">Cargando desde Drive...</div>';
             
-            fetch('/api/chat/files')
+            fetch('/api/chat?team=' + currentSession.team)
                 .then(res => res.json())
                 .then(data => {
                     const files = data.files || [];
                     if (files.length === 0) {
-                        filesList.innerHTML = '<div style="color: #94a3b8; text-align: center; padding: 20px;">No hay archivos</div>';
+                        filesList.innerHTML = '<div style="color: #94a3b8; text-align: center; padding: 20px;">No hay archivos disponibles</div>';
                         return;
                     }
-                    filesList.innerHTML = files.map(file => `
+                    filesList.innerHTML = files.slice(0, 10).map(file => `
                         <div class="file-item">
                             <div class="file-icon">${getFileIcon(file.type)}</div>
                             <div class="file-info">
                                 <div class="file-name">${file.name}</div>
-                                <div class="file-type">${file.type.toUpperCase()}</div>
+                                <div class="file-type">${file.type}</div>
                             </div>
                         </div>
                     `).join('');
                 })
                 .catch(err => {
+                    console.error('Error:', err);
                     filesList.innerHTML = '<div style="color: #94a3b8; text-align: center; padding: 20px;">Error al cargar archivos</div>';
                 });
         }
@@ -703,6 +679,7 @@
             } catch (error) {
                 hideTyping();
                 addMessage('❌ Error: ' + error.message, 'agent');
+                console.error('Error:', error);
             } finally {
                 input.disabled = false;
                 sendButton.disabled = false;
@@ -753,4 +730,12 @@
         document.addEventListener('DOMContentLoaded', function() {
             const textarea = document.getElementById('messageInput');
             if (textarea) {
-                textarea.
+                textarea.addEventListener('input', function() {
+                    this.style.height = 'auto';
+                    this.style.height = Math.min(this.scrollHeight, 120) + 'px';
+                });
+            }
+        });
+    </script>
+</body>
+</html>
