@@ -41,36 +41,78 @@ try {
 const MAIN_FOLDER_ID = process.env.DRIVE_FOLDER_ID || '1LMhvJktYAvY9MISgaQipiiCnttM838Sj';
 const cache = new Map();
 
-// Leer Google Sheet
-async function readGoogleSheet(sheetId, sheetName = 'Hoja1') {
-  if (!sheets) return null;
+// Descargar y leer Excel
+async function downloadAndReadExcel(fileId) {
+  if (!drive) return null;
   
   try {
-    const response = await sheets.spreadsheets.values.get({
-      spreadsheetId: sheetId,
-      range: `'${sheetName}'`
+    const response = await drive.files.get(
+      { fileId, alt: 'media' },
+      { responseType: 'arraybuffer' }
+    );
+    
+    const workbook = XLSX.read(new Uint8Array(response.data), { type: 'array' });
+    const result = {};
+    
+    workbook.SheetNames.forEach(sheetName => {
+      result[sheetName] = XLSX.utils.sheet_to_json(workbook.Sheets[sheetName]);
     });
     
-    const rows = response.data.values;
-    if (!rows || rows.length === 0) return null;
-    
-    const headers = rows[0];
-    const data = rows.slice(1).map(row => {
-      const obj = {};
-      headers.forEach((header, i) => {
-        obj[header] = row[i] || '';
-      });
-      return obj;
-    });
-    
-    return data;
+    return result;
   } catch (error) {
-    console.error('Error reading sheet:', error.message);
+    console.error(`Error downloading Excel ${fileId}:`, error.message);
     return null;
   }
 }
 
-// Listar archivos de Drive
+// Exportar y leer Google Sheet como Excel
+async function downloadAndReadGoogleSheet(sheetId) {
+  if (!drive) return null;
+  
+  try {
+    // Exportar como Excel
+    const response = await drive.files.export(
+      { fileId: sheetId, mimeType: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' },
+      { responseType: 'arraybuffer' }
+    );
+    
+    const workbook = XLSX.read(new Uint8Array(response.data), { type: 'array' });
+    const result = {};
+    
+    workbook.SheetNames.forEach(sheetName => {
+      result[sheetName] = XLSX.utils.sheet_to_json(workbook.Sheets[sheetName]);
+    });
+    
+    return result;
+  } catch (error) {
+    console.error(`Error downloading Google Sheet ${sheetId}:`, error.message);
+    return null;
+  }
+}
+
+// Procesar archivo
+async function processFileContent(file) {
+  try {
+    // Google Sheet
+    if (file.mimeType.includes('google-apps.spreadsheet')) {
+      console.log(`Reading Google Sheet: ${file.name}`);
+      return await downloadAndReadGoogleSheet(file.id);
+    }
+    
+    // Excel
+    if (file.mimeType.includes('spreadsheet') || file.name.endsWith('.xlsx') || file.name.endsWith('.xls')) {
+      console.log(`Reading Excel: ${file.name}`);
+      return await downloadAndReadExcel(file.id);
+    }
+    
+    return null;
+  } catch (error) {
+    console.error(`Error processing ${file.name}:`, error.message);
+    return null;
+  }
+}
+
+// Listar archivos
 async function listDriveFiles(folderId = MAIN_FOLDER_ID) {
   if (!drive) return [];
   
@@ -97,91 +139,31 @@ async function listDriveFiles(folderId = MAIN_FOLDER_ID) {
   }
 }
 
-// Procesar contenido de archivo
-async function processFileContent(fileId, mimeType) {
-  if (!drive) return null;
-  
-  try {
-    // Si es Google Sheet, extraer ID y leer
-    if (mimeType.includes('google-apps.spreadsheet')) {
-      const sheetData = await readGoogleSheet(fileId, 'Hoja1');
-      return sheetData;
-    }
-    
-    // Si es Excel
-    if (mimeType.includes('spreadsheet')) {
-      const response = await drive.files.get(
-        { fileId: fileId, alt: 'media' },
-        { responseType: 'arraybuffer' }
-      );
-      const workbook = XLSX.read(Buffer.from(response.data), { type: 'buffer' });
-      const result = {};
-      workbook.SheetNames.forEach(sheetName => {
-        result[sheetName] = XLSX.utils.sheet_to_json(workbook.Sheets[sheetName]);
-      });
-      return result;
-    }
-    
-    return null;
-  } catch (error) {
-    console.error('Error processing file:', error.message);
-    return null;
-  }
-}
-
 // System Prompt
 const SYSTEM_PROMPT = `Eres el asistente inteligente de O Gran Camiño 2025.
 
-## INFORMACIÓN DISPONIBLE EN LOS ARCHIVOS
+## REGLA CRÍTICA
+**NO INVENTES DATOS.** Solo usa exactamente lo que está en los archivos.
+Si la información no está disponible, dilo claramente.
 
-- 🏨 Hoteles por equipo y etapa
-- 🚴 Lista de equipos participantes
-- 📅 Calendarios y horarios
-- 🗺️ Rutas GPX y etapas
-- 📍 Puntos de partida oficial (PPO)
+## FORMATO DE RESPUESTAS
 
-## INSTRUCCIONES DE RESPUESTA
+SIEMPRE en HTML elegante:
 
-SIEMPRE formatea las respuestas en HTML elegante y profesional:
-
-PARA TABLAS (equipos, hoteles, etc):
-<h3>🏨 Hoteles - O Gran Camiño 2025</h3>
-<table style="width:100%; border-collapse:collapse; margin:10px 0;">
+<h3>🏨 Hoteles O Gran Camiño 2025</h3>
+<table style="width:100%; border-collapse:collapse;">
   <tr style="background:#667eea; color:white;">
-    <th style="border:1px solid #ddd; padding:10px; text-align:left;">Equipo</th>
-    <th style="border:1px solid #ddd; padding:10px; text-align:left;">Etapa 1</th>
-    <th style="border:1px solid #ddd; padding:10px; text-align:left;">Etapa 2</th>
+    <th style="padding:10px; text-align:left; border:1px solid #ddd;">Equipo</th>
+    <th style="padding:10px; text-align:left; border:1px solid #ddd;">Etapa 1</th>
   </tr>
-  <tr style="background:#f9f9f9;">
-    <td style="border:1px solid #ddd; padding:10px;"><strong>Movistar</strong></td>
-    <td style="border:1px solid #ddd; padding:10px;">Hotel A</td>
-    <td style="border:1px solid #ddd; padding:10px;">Hotel B</td>
+  <tr>
+    <td style="padding:10px; border:1px solid #ddd;">Movistar</td>
+    <td style="padding:10px; border:1px solid #ddd;">Feel Viana</td>
   </tr>
 </table>
 
-PARA LISTAS:
-<h3>🚴 Equipos Participantes</h3>
-<ul>
-  <li><strong>Equipo 1</strong> - País</li>
-  <li><strong>Equipo 2</strong> - País</li>
-</ul>
-
-PARA INFORMACIÓN DETALLADA:
-<h3>📍 PPO Etapa 5</h3>
-<p><strong>Localización:</strong> Padrón</p>
-<p><strong>Hora:</strong> 08:00</p>
-<p><strong>Fecha:</strong> 23 de febrero de 2025</p>
-<p><a href="https://www.google.com/maps/search/Padron" target="_blank">🗺️ Ver ubicación en Google Maps</a></p>
-
-## REGLAS IMPORTANTES
-
-- Responde SIEMPRE en HTML
-- Usa emojis relevantes: 🚴 🗺️ 🏨 📍 ⚠️ 📅 🌤️ 🚗
-- Mantén respuestas concisas pero informativas
-- Para direcciones: genera link a Google Maps
-- Si preguntan por algo que no tienes en los archivos, dilo claramente
-- NO INVENTES DATOS - solo usa lo que está en los archivos
-- Sé profesional y amable`;
+EMOJIS: 🚴 🗺️ 🏨 📍 ⚠️ 📅 🌤️ 🚗
+`;
 
 export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
@@ -194,7 +176,7 @@ export default async function handler(req, res) {
   }
   
   try {
-    // GET /api/chat/files - Listar archivos
+    // GET /api/chat/files
     if (req.method === 'GET' && req.url.includes('/files')) {
       const files = await listDriveFiles();
       
@@ -203,19 +185,14 @@ export default async function handler(req, res) {
         name: f.name,
         type: f.mimeType.includes('spreadsheet') ? 'excel' :
               f.mimeType.includes('google-apps.spreadsheet') ? 'sheet' :
-              f.mimeType.includes('pdf') ? 'pdf' :
-              f.name.endsWith('.gpx') ? 'gpx' :
-              f.mimeType.includes('document') ? 'doc' : 'file',
-        size: f.size,
-        modified: f.modifiedTime,
-        link: f.webViewLink,
+              f.name.endsWith('.gpx') ? 'gpx' : 'file',
         mimeType: f.mimeType
       }));
       
       return res.status(200).json({ success: true, files: formattedFiles });
     }
     
-    // POST /api/chat - Enviar mensaje
+    // POST /api/chat
     if (req.method === 'POST') {
       const { message, team, history = [] } = req.body;
       
@@ -223,36 +200,36 @@ export default async function handler(req, res) {
         return res.status(400).json({ success: false, error: 'Mensaje requerido' });
       }
       
-      // Obtener archivos de Drive
+      // Obtener archivos
       const files = await listDriveFiles();
-      let context = '\n## ARCHIVOS DISPONIBLES EN DRIVE:\n\n';
+      let context = '\n## DATOS DISPONIBLES EN DRIVE:\n\n';
       
-      // Procesar cada archivo
+      // Leer TODOS los archivos
       for (const file of files) {
-        context += `📄 **${file.name}**\n`;
+        const content = await processFileContent(file);
         
-        try {
-          const fileContent = await processFileContent(file.id, file.mimeType);
-          
-          if (fileContent) {
-            if (Array.isArray(fileContent)) {
-              // Es un array de objetos (Google Sheet o Excel)
-              context += JSON.stringify(fileContent.slice(0, 50), null, 2) + '\n\n';
-            } else if (typeof fileContent === 'object') {
-              // Es un objeto
-              context += JSON.stringify(fileContent, null, 2) + '\n\n';
-            }
-          }
-        } catch (error) {
-          console.error(`Error processing ${file.name}:`, error.message);
+        if (content) {
+          context += `\n### ${file.name}\n`;
+          context += JSON.stringify(content, null, 2);
+        } else {
+          context += `\n### ${file.name} - [No se pudo leer]\n`;
         }
       }
       
-      // Crear mensaje para Claude
+      // Crear prompt
+      const fullPrompt = SYSTEM_PROMPT + context;
+      
+      console.log('Sending to Claude:', {
+        messageLength: message.length,
+        contextLength: context.length,
+        files: files.length
+      });
+      
+      // Llamar a Claude
       const response = await anthropic.messages.create({
         model: 'claude-sonnet-4-5-20250929',
         max_tokens: 2048,
-        system: SYSTEM_PROMPT + context,
+        system: fullPrompt,
         messages: [
           ...history.slice(-6),
           { role: 'user', content: message }
@@ -260,12 +237,6 @@ export default async function handler(req, res) {
       });
       
       const responseText = response.content[0].text;
-      
-      console.log({
-        timestamp: new Date().toISOString(),
-        team,
-        tokens: response.usage.input_tokens + response.usage.output_tokens
-      });
       
       return res.status(200).json({
         success: true,
@@ -280,7 +251,7 @@ export default async function handler(req, res) {
     console.error('Error:', error);
     return res.status(500).json({ 
       success: false, 
-      error: error.message || 'Error interno del servidor'
+      error: error.message
     });
   }
 }
