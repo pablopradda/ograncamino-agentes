@@ -3,7 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>O Gran Camiño 2025 - Asistente IA</title>
+    <title>O Gran Camiño 2025 - IA Assistant</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         * {
             margin: 0;
@@ -16,6 +17,44 @@
             background: linear-gradient(135deg, #001f3f 0%, #003d7a 50%, #1e90ff 100%);
             min-height: 100vh;
             color: #1a1a1a;
+        }
+        
+        /* ========== LANGUAGE SELECTOR ========== */
+        .language-selector {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1000;
+            display: flex;
+            gap: 8px;
+        }
+        
+        .language-selector.hidden {
+            display: none !important;
+        }
+        
+        .lang-btn {
+            padding: 8px 14px;
+            background: rgba(255,255,255,0.2);
+            color: white;
+            border: 2px solid rgba(255,255,255,0.3);
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 0.85rem;
+            transition: all 0.2s;
+            text-transform: uppercase;
+        }
+        
+        .lang-btn:hover {
+            background: rgba(255,255,255,0.3);
+            transform: translateY(-2px);
+        }
+        
+        .lang-btn.active {
+            background: white;
+            color: #001f3f;
+            border-color: white;
         }
         
         /* ========== LOGIN SCREEN ========== */
@@ -93,48 +132,40 @@
             letter-spacing: 0.5px;
         }
         
-        .teams-grid {
-            display: grid;
-            grid-template-columns: 1fr;
-            gap: 8px;
-            margin-bottom: 20px;
-            max-height: 350px;
-            overflow-y: auto;
-            border: 2px solid #e5e7eb;
-            border-radius: 12px;
-            padding: 8px;
-        }
-        
-        .team-option {
+        .teams-select {
+            width: 100%;
             padding: 14px 16px;
-            background: #f9fafb;
-            border: 2px solid transparent;
+            border: 2px solid #e5e7eb;
             border-radius: 10px;
+            font-size: 1rem;
+            font-family: inherit;
+            font-weight: 600;
             cursor: pointer;
             transition: all 0.2s;
-            font-weight: 600;
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
-        
-        .team-option:hover {
             background: white;
-            border-color: #1e90ff;
-            box-shadow: 0 4px 12px rgba(30, 144, 255, 0.15);
+            color: #1a1a1a;
+            appearance: none;
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23001f3f' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 8px center;
+            padding-right: 32px;
         }
         
-        .team-option.selected {
-            background: linear-gradient(135deg, #001f3f 0%, #1e90ff 100%);
-            color: white;
+        .teams-select:focus {
+            outline: none;
+            border-color: #1e90ff;
+            box-shadow: 0 0 0 4px rgba(30, 144, 255, 0.1);
+        }
+        
+        .teams-select:hover {
             border-color: #1e90ff;
         }
         
-        .team-color {
-            width: 20px;
-            height: 20px;
-            border-radius: 50%;
-            flex-shrink: 0;
+        .teams-select option {
+            padding: 10px;
+            font-weight: 600;
         }
         
         .code-input input {
@@ -253,7 +284,7 @@
         .header-logo {
             height: 45px;
             width: auto;
-            display: block;
+            display: none;
         }
         
         .header-brand-text h1 {
@@ -266,6 +297,42 @@
             opacity: 0.9;
         }
         
+        .header-controls {
+            display: flex;
+            gap: 16px;
+            align-items: center;
+            margin-left: auto;
+        }
+        
+        .header-lang {
+            display: flex;
+            gap: 8px;
+        }
+        
+        .header-lang button {
+            padding: 8px 20px;
+            background: rgba(255,255,255,0.1);
+            color: white;
+            border: 1px solid rgba(255,255,255,0.3);
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 0.75rem;
+            transition: all 0.2s;
+            text-transform: uppercase;
+            white-space: nowrap;
+        }
+        
+        .header-lang button:hover {
+            background: rgba(255,255,255,0.2);
+        }
+        
+        .header-lang button.active {
+            background: white;
+            color: #001f3f;
+            border-color: white;
+        }
+        
         .logout-btn {
             padding: 8px 20px;
             background: rgba(255,255,255,0.1);
@@ -274,7 +341,9 @@
             border-radius: 8px;
             cursor: pointer;
             font-weight: 600;
+            font-size: 0.75rem;
             transition: all 0.2s;
+            white-space: nowrap;
         }
         
         .logout-btn:hover {
@@ -349,21 +418,25 @@
         .chat-area {
             display: flex;
             flex-direction: column;
-            background: white;
+            background: #fff;
+            height: 100%;
+            overflow: hidden;
         }
         
         .messages {
             flex: 1;
             overflow-y: auto;
+            overflow-x: hidden;
             padding: 24px;
             display: flex;
             flex-direction: column;
             gap: 16px;
+            background: #fff;
         }
         
         .message {
             display: flex;
-            gap: 12px;
+            gap: 0;
             animation: fadeIn 0.3s ease;
         }
         
@@ -379,7 +452,7 @@
         .message-avatar {
             width: 36px;
             height: 36px;
-            display: flex;
+            display: none;
             align-items: center;
             justify-content: center;
             font-size: 1.5rem;
@@ -394,20 +467,65 @@
         .message-content {
             padding: 12px 16px;
             border-radius: 12px;
-            max-width: 70%;
+            max-width: 85%;
             word-wrap: break-word;
             line-height: 1.5;
         }
         
         .message.user .message-content {
-            background: linear-gradient(135deg, #001f3f 0%, #1e90ff 100%);
-            color: white;
+            background: #F4F4F4;
+            color: #1a1a1a;
+            border: none;
+            border-radius: 12px;
+            padding: 16px;
         }
         
         .message.agent .message-content {
-            background: #f0f8ff;
+            background: transparent;
             color: #1a1a1a;
-            border: 1px solid #e5e7eb;
+            border: none;
+            padding: 16px;
+            line-height: 1.6;
+            border-radius: 0;
+        }
+        
+        /* ========== INFO CARDS CLEAN ========== */
+        .info-card {
+            background: #f9fafb;
+            padding: 16px;
+            border-radius: 8px;
+            margin: 8px 0;
+        }
+        
+        .card-header {
+            font-size: 0.95rem;
+            font-weight: 700;
+            margin-bottom: 12px;
+            color: #1a1a1a;
+        }
+        
+        .card-section {
+            margin-bottom: 8px;
+            color: #333;
+            font-size: 0.95rem;
+            line-height: 1.4;
+        }
+        
+        .card-section:last-child {
+            margin-bottom: 0;
+        }
+        
+        .card-section strong {
+            color: #001f3f;
+        }
+        
+        .card-section a {
+            color: #1e90ff;
+            text-decoration: none;
+        }
+        
+        .card-section a:hover {
+            text-decoration: underline;
         }
         
         .typing-indicator {
@@ -438,55 +556,86 @@
         
         /* ========== CHAT FOOTER ========== */
         .chat-footer {
-            border-top: 1px solid #e5e7eb;
-            padding: 20px 24px;
-            background: white;
+            border-top: none;
+            padding: 12px 24px;
+            background: #fff;
+            display: flex;
+            align-items: center;
+            gap: 12px;
         }
         
         .input-group {
             display: flex;
+            align-items: center;
+            justify-content: space-between;
             gap: 8px;
+            flex: 1;
+            background: #F4F4F4;
+            border-radius: 24px;
+            padding: 10px 12px 10px 16px;
+            transition: all 0.2s;
+            height: auto;
+        }
+        
+        .input-group:focus-within {
+            background: #F4F4F4;
+            box-shadow: 0 0 0 2px rgba(30, 144, 255, 0.1);
         }
         
         .input-group textarea {
             flex: 1;
-            padding: 12px 16px;
-            border: 1px solid #e5e7eb;
-            border-radius: 10px;
+            padding: 0;
+            border: none;
+            background: transparent;
             font-size: 1rem;
             font-family: inherit;
             resize: none;
-            max-height: 100px;
-            transition: all 0.2s;
+            color: #1a1a1a;
+            height: 24px;
+            line-height: 24px;
+            overflow: hidden;
+        }
+        
+        .input-group textarea::placeholder {
+            color: #ccc;
         }
         
         .input-group textarea:focus {
             outline: none;
-            border-color: #1e90ff;
-            box-shadow: 0 0 0 3px rgba(30, 144, 255, 0.1);
         }
         
-        .input-group button {
-            padding: 12px 28px;
-            background: linear-gradient(135deg, #001f3f 0%, #1e90ff 100%);
-            color: white;
+        .input-group button.send-btn {
+            padding: 0;
+            background: white;
+            color: #000;
             border: none;
-            border-radius: 10px;
+            border-radius: 50%;
             cursor: pointer;
             font-weight: 700;
             transition: all 0.2s;
-            text-transform: uppercase;
-            font-size: 0.85rem;
-            letter-spacing: 0.5px;
+            width: 36px;
+            height: 36px;
+            min-width: 36px;
+            min-height: 36px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            margin: 0;
         }
         
-        .input-group button:hover:not(:disabled) {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 20px rgba(30, 144, 255, 0.3);
+        .input-group button.send-btn i {
+            font-size: 1.2rem;
+            color: #000;
         }
         
-        .input-group button:disabled {
-            opacity: 0.6;
+        .input-group button.send-btn:hover:not(:disabled) {
+            transform: scale(1.1);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+        }
+        
+        .input-group button.send-btn:disabled {
+            opacity: 0.5;
             cursor: not-allowed;
         }
         
@@ -541,16 +690,34 @@
             .logo-section h1 {
                 font-size: 1.8rem;
             }
+            
+            .language-selector {
+                top: 10px;
+                right: 10px;
+                gap: 4px;
+            }
+            
+            .lang-btn {
+                padding: 6px 10px;
+                font-size: 0.75rem;
+            }
         }
     </style>
 </head>
 <body>
+    <!-- LANGUAGE SELECTOR -->
+    <div class="language-selector">
+        <button class="lang-btn active" data-lang="es">ES</button>
+        <button class="lang-btn" data-lang="gl">GL</button>
+        <button class="lang-btn" data-lang="en">EN</button>
+    </div>
+    
     <!-- LOGIN SCREEN -->
     <div id="loginScreen" class="login-screen">
         <div class="login-container">
             <div class="logo-section">
                 <img src="/logohistorical_version2023.png" alt="O Gran Camiño" class="logo-image">
-                <h1>Asistente IA</h1>
+                <h1>Team Coach</h1>
                 <p>2025</p>
             </div>
             
@@ -559,17 +726,19 @@
             <div class="divider"></div>
             
             <div class="form-group">
-                <label>Selecciona tu equipo:</label>
-                <div class="teams-grid" id="teamsGrid"></div>
+                <label id="selectTeamLabel">Select your team:</label>
+                <select id="teamsSelect" class="teams-select" onchange="selectTeam()">
+                    <option value="">Choose a team</option>
+                </select>
             </div>
             
             <div class="form-group code-input">
-                <label>Código de acceso:</label>
-                <input type="password" id="accessCode" placeholder="Ingresa el código" onkeypress="if(event.key==='Enter') handleLogin()">
+                <label id="accessCodeLabel">Access code:</label>
+                <input type="password" id="accessCode" placeholder="Enter the code" onkeypress="if(event.key==='Enter') handleLogin()">
             </div>
             
-            <button class="login-btn" onclick="handleLogin()">Entrar al Equipo</button>
-            <button class="public-btn" onclick="accessPublic()">Acceso Público →</button>
+            <button class="login-btn" id="loginBtnText" onclick="handleLogin()">Enter Team</button>
+            <button class="public-btn" id="publicBtnText" onclick="accessPublic()">Public Access</button>
         </div>
     </div>
     
@@ -580,17 +749,24 @@
                 <img src="/logohistorical_version2023.png" alt="O Gran Camiño" class="header-logo">
                 <div class="header-brand-text">
                     <h1 id="teamName">O Gran Camiño</h1>
-                    <p id="teamSubtitle">Asistente IA</p>
+                    <p id="teamSubtitle">Team Coach</p>
                 </div>
             </div>
-            <button class="logout-btn" onclick="handleLogout()">Salir</button>
+            <div class="header-controls">
+                <div class="header-lang">
+                    <button data-lang="es" id="langEs">ES</button>
+                    <button data-lang="gl" id="langGl">GL</button>
+                    <button data-lang="en" id="langEn">EN</button>
+                </div>
+                <button class="logout-btn" id="logoutBtnText" onclick="handleLogout()">Logout</button>
+            </div>
         </div>
         
         <div class="main-content">
             <div class="sidebar">
-                <h3>📄 Recursos</h3>
+                <h3 id="resourcesLabel">📄 Resources</h3>
                 <div id="filesList" class="files-list">
-                    <div class="loading-text">Cargando...</div>
+                    <div class="loading-text">Loading...</div>
                 </div>
             </div>
             
@@ -599,8 +775,13 @@
                 
                 <div class="chat-footer">
                     <div class="input-group">
-                        <textarea id="messageInput" placeholder="¿Cuáles son mis hoteles? ¿Dónde es la etapa 2?..." onkeypress="handleChatKeyPress(event)"></textarea>
-                        <button id="sendButton" onclick="sendMessage()">Enviar</button>
+                        <textarea id="messageInput" placeholder="Message..." onkeypress="handleChatKeyPress(event)"></textarea>
+                        <button id="sendBtnText" class="send-btn" onclick="sendMessage()" title="Send">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                                <line x1="12" y1="19" x2="12" y2="5"></line>
+                                <polyline points="5 12 12 5 19 12"></polyline>
+                            </svg>
+                        </button>
                     </div>
                 </div>
             </div>
@@ -608,6 +789,70 @@
     </div>
     
     <script>
+        // TRANSLATIONS
+        const translations = {
+            es: {
+                selectTeamLabel: 'Selecciona tu equipo:',
+                chooseTeam: 'Elige un equipo',
+                accessCodeLabel: 'Código de acceso:',
+                accessCodePlaceholder: 'Ingresa el código',
+                loginBtn: 'Entrar al Equipo',
+                publicBtn: 'Acceso Público',
+                selectTeamError: '❌ Selecciona un equipo',
+                enterCodeError: '❌ Ingresa el código',
+                incorrectCodeError: '❌ Código incorrecto',
+                resources: '📄 Recursos',
+                loading: 'Cargando...',
+                messagePlaceholder: 'Mensaje...',
+                send: 'Enviar',
+                logout: 'Salir',
+                noResources: 'No hay recursos',
+                welcome: (team) => `¡Bienvenido ${team}! 🚴‍♂️<br><br>Soy tu Team Coach de O Gran Camiño 2025.<br><br><strong>Puedo ayudarte con:</strong><br>🏨 Hoteles por etapa<br>🗺️ Rutas y distancias<br>📅 Fechas de etapas<br>📊 Información de etapas<br><br>¿Qué necesitas?`,
+                error: (msg) => `❌ Error: ${msg}`,
+                publicAccess: 'Acceso Público'
+            },
+            gl: {
+                selectTeamLabel: 'Selecciona o teu equipo:',
+                chooseTeam: 'Escolle un equipo',
+                accessCodeLabel: 'Código de acceso:',
+                accessCodePlaceholder: 'Introduce o código',
+                loginBtn: 'Entrar no Equipo',
+                publicBtn: 'Acceso Público',
+                selectTeamError: '❌ Selecciona un equipo',
+                enterCodeError: '❌ Introduce o código',
+                incorrectCodeError: '❌ Código incorrecto',
+                resources: '📄 Recursos',
+                loading: 'Cargando...',
+                messagePlaceholder: 'Mensaxe...',
+                send: 'Enviar',
+                logout: 'Saír',
+                noResources: 'Non hai recursos',
+                welcome: (team) => `¡Benvido ${team}! 🚴‍♂️<br><br>Sou o teu Team Coach de O Gran Camiño 2025.<br><br>Podo axudarche con:<br>🏨 Hotéis por etapa<br>🗺️ Rutas e distancias<br>📅 Datas das etapas<br>📊 Información das etapas<br><br>¿Que necesitas?`,
+                error: (msg) => `❌ Error: ${msg}`,
+                publicAccess: 'Acceso Público'
+            },
+            en: {
+                selectTeamLabel: 'Select your team:',
+                chooseTeam: 'Choose a team',
+                accessCodeLabel: 'Access code:',
+                accessCodePlaceholder: 'Enter the code',
+                loginBtn: 'Enter Team',
+                publicBtn: 'Public Access',
+                selectTeamError: '❌ Select a team',
+                enterCodeError: '❌ Enter the code',
+                incorrectCodeError: '❌ Incorrect code',
+                resources: '📄 Resources',
+                loading: 'Loading...',
+                messagePlaceholder: 'Message...',
+                send: 'Send',
+                logout: 'Logout',
+                noResources: 'No resources',
+                welcome: (team) => `Welcome ${team}! 🚴‍♂️<br><br>I am your O Gran Camiño 2025 Team Coach.<br><br>I can help you with:<br>🏨 Hotels per stage<br>🗺️ Routes and distances<br>📅 Stage dates<br>📊 Stage information<br><br>What do you need?`,
+                error: (msg) => `❌ Error: ${msg}`,
+                publicAccess: 'Public Access'
+            }
+        };
+        
         const TEAMS = [
             { name: 'Premier Tech', icon: '🟣', code: 'PREMIER2025', color: '#7C3AED' },
             { name: 'Movistar Team', icon: '🟠', code: 'MOVISTAR2025', color: '#EA580C' },
@@ -629,27 +874,71 @@
             { name: 'Tavira', icon: '🟠', code: 'TAVIRA2025', color: '#FB923C' }
         ];
         
+        let currentLanguage = localStorage.getItem('language') || 'es';
         let currentSession = null;
         let selectedTeam = null;
         
         window.addEventListener('DOMContentLoaded', () => {
+            setLanguage(currentLanguage);
             renderTeams();
+            updateLanguageButtons();
+            setupLanguageButtons();
         });
         
-        function renderTeams() {
-            const grid = document.getElementById('teamsGrid');
-            grid.innerHTML = TEAMS.map(team => `
-                <div class="team-option" onclick="selectTeam(this, '${team.code}')">
-                    <div class="team-color" style="background: ${team.color};"></div>
-                    <span>${team.icon} ${team.name}</span>
-                </div>
-            `).join('');
+        function setupLanguageButtons() {
+            document.querySelectorAll('[data-lang]').forEach(btn => {
+                btn.addEventListener('click', () => setLanguage(btn.dataset.lang));
+            });
         }
         
-        function selectTeam(el, code) {
-            document.querySelectorAll('.team-option').forEach(e => e.classList.remove('selected'));
-            el.classList.add('selected');
-            selectedTeam = code;
+        function setLanguage(lang) {
+            currentLanguage = lang;
+            localStorage.setItem('language', lang);
+            updateUI();
+            updateLanguageButtons();
+        }
+        
+        function updateLanguageButtons() {
+            document.querySelectorAll('[data-lang]').forEach(btn => {
+                btn.classList.toggle('active', btn.dataset.lang === currentLanguage);
+            });
+        }
+        
+        function t(key, param = null) {
+            const text = translations[currentLanguage][key];
+            if (typeof text === 'function' && param) {
+                return text(param);
+            }
+            return text || translations.es[key];
+        }
+        
+        function updateUI() {
+            document.getElementById('selectTeamLabel').textContent = t('selectTeamLabel');
+            document.getElementById('accessCodeLabel').textContent = t('accessCodeLabel');
+            document.getElementById('accessCode').placeholder = t('accessCodePlaceholder');
+            document.getElementById('loginBtnText').textContent = t('loginBtn');
+            document.getElementById('publicBtnText').textContent = t('publicBtn');
+            document.getElementById('logoutBtnText').textContent = t('logout');
+            document.getElementById('resourcesLabel').textContent = t('resources');
+            document.getElementById('messageInput').placeholder = t('messagePlaceholder');
+            
+            document.getElementById('teamsSelect').options[0].textContent = t('chooseTeam');
+        }
+        
+        function renderTeams() {
+            const select = document.getElementById('teamsSelect');
+            select.innerHTML = `<option value="">${t('chooseTeam')}</option>`;
+            TEAMS.forEach(team => {
+                const option = document.createElement('option');
+                option.value = team.code;
+                option.textContent = `${team.icon} ${team.name}`;
+                select.appendChild(option);
+            });
+        }
+        
+        function selectTeam() {
+            const select = document.getElementById('teamsSelect');
+            selectedTeam = select.value || null;
         }
         
         function showError(msg) {
@@ -661,19 +950,19 @@
         
         function handleLogin() {
             if (!selectedTeam) {
-                showError('❌ Selecciona un equipo');
+                showError(t('selectTeamError'));
                 return;
             }
             
             const code = document.getElementById('accessCode').value;
             if (!code) {
-                showError('❌ Ingresa el código');
+                showError(t('enterCodeError'));
                 return;
             }
             
-            const team = TEAMS.find(t => t.code === selectedTeam);
+            const team = TEAMS.find(tm => tm.code === selectedTeam);
             if (code !== team.code) {
-                showError('❌ Código incorrecto');
+                showError(t('incorrectCodeError'));
                 return;
             }
             
@@ -681,7 +970,7 @@
         }
         
         function accessPublic() {
-            const team = { name: 'Acceso Público', icon: '🌍', code: 'public', color: '#0EA5E9' };
+            const team = { name: t('publicAccess'), icon: '🌍', code: 'public', color: '#0EA5E9' };
             startSession(team);
         }
         
@@ -691,9 +980,9 @@
             document.getElementById('teamName').textContent = team.name;
             document.getElementById('loginScreen').classList.add('hidden');
             document.getElementById('app').classList.add('active');
+            document.querySelector('.language-selector').classList.add('hidden');
             
-            addMessage(`¡Bienvenido ${team.name}! 🚴‍♂️<br><br>Soy tu asistente de O Gran Camiño 2025.<br><br>Puedo ayudarte con:<br>🏨 Hoteles por etapa<br>🗺️ Rutas y distancias<br>📅 Fechas de etapas<br>📊 Información de etapas<br><br>¿Qué necesitas?`, 'agent');
-            
+            addMessage(t('welcome', team.name), 'agent');
             loadFiles();
         }
         
@@ -702,14 +991,15 @@
             selectedTeam = null;
             document.getElementById('app').classList.remove('active');
             document.getElementById('loginScreen').classList.remove('hidden');
+            document.querySelector('.language-selector').classList.remove('hidden');
             document.getElementById('accessCode').value = '';
+            document.getElementById('teamsSelect').value = '';
             document.getElementById('messages').innerHTML = '';
-            renderTeams();
         }
         
         async function loadFiles() {
             const list = document.getElementById('filesList');
-            list.innerHTML = '<div class="loading-text">Cargando...</div>';
+            list.innerHTML = `<div class="loading-text">${t('loading')}</div>`;
             
             try {
                 const res = await fetch('/api/chat/files');
@@ -717,7 +1007,7 @@
                 
                 const files = data.files || [];
                 if (files.length === 0) {
-                    list.innerHTML = '<div class="loading-text">No hay recursos</div>';
+                    list.innerHTML = `<div class="loading-text">${t('noResources')}</div>`;
                     return;
                 }
                 
@@ -729,7 +1019,7 @@
                     </div>
                 `).join('');
             } catch (e) {
-                list.innerHTML = '<div class="loading-text">⚠️ Error</div>';
+                list.innerHTML = `<div class="loading-text">⚠️ Error</div>`;
             }
         }
         
@@ -753,7 +1043,7 @@
             
             input.value = '';
             input.disabled = true;
-            document.getElementById('sendButton').disabled = true;
+            document.getElementById('sendBtnText').disabled = true;
             
             addMessage(msg, 'user');
             showTyping();
@@ -778,10 +1068,10 @@
                 currentSession.history.push({ role: 'assistant', content: data.response });
             } catch (e) {
                 hideTyping();
-                addMessage('❌ Error: ' + e.message, 'agent');
+                addMessage(t('error', e.message), 'agent');
             } finally {
                 input.disabled = false;
-                document.getElementById('sendButton').disabled = false;
+                document.getElementById('sendBtnText').disabled = false;
                 input.focus();
             }
         }
@@ -822,11 +1112,7 @@
         }
         
         document.addEventListener('DOMContentLoaded', () => {
-            const ta = document.getElementById('messageInput');
-            ta.addEventListener('input', function() {
-                this.style.height = 'auto';
-                this.style.height = Math.min(this.scrollHeight, 100) + 'px';
-            });
+            // Textarea height fixed, no auto-grow
         });
     </script>
 </body>
