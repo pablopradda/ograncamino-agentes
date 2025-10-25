@@ -1,153 +1,19 @@
 import Anthropic from '@anthropic-ai/sdk';
-import { google } from 'googleapis';
-import XLSX from 'xlsx';
+import { createClient } from '@supabase/supabase-js';
 
 const anthropic = new Anthropic({
   apiKey: process.env.ANTHROPIC_API_KEY
 });
 
-let auth = null;
-let drive = null;
-let sheets = null;
+const supabase = createClient(
+  process.env.SUPABASE_URL,
+  process.env.SUPABASE_ANON_KEY
+);
 
-try {
-  let credentials = null;
-  if (process.env.GOOGLE_SERVICE_ACCOUNT) {
-    try {
-      credentials = JSON.parse(process.env.GOOGLE_SERVICE_ACCOUNT);
-    } catch (e) {
-      try {
-        credentials = JSON.parse(Buffer.from(process.env.GOOGLE_SERVICE_ACCOUNT, 'base64').toString());
-      } catch (e2) {
-        credentials = null;
-      }
-    }
-  }
-  if (credentials && credentials.type === 'service_account') {
-    auth = new google.auth.GoogleAuth({
-      credentials: credentials,
-      scopes: [
-        'https://www.googleapis.com/auth/drive.readonly',
-        'https://www.googleapis.com/auth/spreadsheets.readonly'
-      ]
-    });
-    drive = google.drive({ version: 'v3', auth });
-    sheets = google.sheets({ version: 'v4', auth });
-  }
-} catch (error) {
-  console.error('Google Auth error:', error.message);
-}
-
-const MAIN_FOLDER_ID = process.env.DRIVE_FOLDER_ID || '1LMhvJktYAvY9MISgaQipiiCnttM838Sj';
-const cache = new Map();
-
-// Descargar y leer Excel
-async function downloadAndReadExcel(fileId) {
-  if (!drive) return null;
-  
-  try {
-    const response = await drive.files.get(
-      { fileId, alt: 'media' },
-      { responseType: 'arraybuffer' }
-    );
-    
-    const workbook = XLSX.read(new Uint8Array(response.data), { type: 'array' });
-    const result = {};
-    
-    workbook.SheetNames.forEach(sheetName => {
-      result[sheetName] = XLSX.utils.sheet_to_json(workbook.Sheets[sheetName]);
-    });
-    
-    return result;
-  } catch (error) {
-    console.error(`Error downloading Excel ${fileId}:`, error.message);
-    return null;
-  }
-}
-
-// Exportar y leer Google Sheet como Excel
-async function downloadAndReadGoogleSheet(sheetId) {
-  if (!drive) return null;
-  
-  try {
-    const response = await drive.files.export(
-      { fileId: sheetId, mimeType: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' },
-      { responseType: 'arraybuffer' }
-    );
-    
-    const workbook = XLSX.read(new Uint8Array(response.data), { type: 'array' });
-    const result = {};
-    
-    workbook.SheetNames.forEach(sheetName => {
-      result[sheetName] = XLSX.utils.sheet_to_json(workbook.Sheets[sheetName]);
-    });
-    
-    return result;
-  } catch (error) {
-    console.error(`Error downloading Google Sheet ${sheetId}:`, error.message);
-    return null;
-  }
-}
-
-// Procesar archivo
-async function processFileContent(file) {
-  try {
-    // Google Sheet
-    if (file.mimeType.includes('google-apps.spreadsheet')) {
-      console.log(`Reading Google Sheet: ${file.name}`);
-      return await downloadAndReadGoogleSheet(file.id);
-    }
-    
-    // Excel
-    if (file.mimeType.includes('spreadsheet') || file.name.endsWith('.xlsx') || file.name.endsWith('.xls')) {
-      console.log(`Reading Excel: ${file.name}`);
-      return await downloadAndReadExcel(file.id);
-    }
-    
-    return null;
-  } catch (error) {
-    console.error(`Error processing ${file.name}:`, error.message);
-    return null;
-  }
-}
-
-// Listar archivos
-async function listDriveFiles(folderId = MAIN_FOLDER_ID) {
-  if (!drive) return [];
-  
-  const cacheKey = `files_${folderId}`;
-  if (cache.has(cacheKey)) {
-    const cached = cache.get(cacheKey);
-    if (Date.now() - cached.timestamp < 5 * 60 * 1000) return cached.data;
-  }
-  
-  try {
-    const response = await drive.files.list({
-      q: `'${folderId}' in parents and trashed=false`,
-      fields: 'files(id, name, mimeType, webViewLink, size, modifiedTime)',
-      orderBy: 'name',
-      pageSize: 100
-    });
-    
-    const files = response.data.files || [];
-    cache.set(cacheKey, { data: files, timestamp: Date.now() });
-    return files;
-  } catch (error) {
-    console.error('Error listing files:', error.message);
-    return [];
-  }
-}
-
-// CAMBIO 1: Función para generar URL de descarga
-function getDownloadUrl(fileId) {
-  return `https://drive.google.com/uc?export=download&id=${fileId}`;
-}
-
-// System Prompt
 const SYSTEM_PROMPT = `Eres el asistente inteligente de O Gran Camiño 2025.
 
 ## REGLA CRÍTICA
-**NO INVENTES DATOS.** Solo usa exactamente lo que está en los archivos.
+**NO INVENTES DATOS.** Solo usa exactamente lo que está en la base de datos.
 Si la información no está disponible, dilo claramente.
 
 ## FORMATO DE RESPUESTAS
@@ -157,11 +23,11 @@ SIEMPRE en HTML elegante:
 <h3>🏨 Hoteles O Gran Camiño 2025</h3>
 <table style="width:100%; border-collapse:collapse;">
   <tr style="background:#667eea; color:white;">
-    <th style="padding:10px; text-align:left; border:1px solid #ddd;">Equipo</th>
-    <th style="padding:10px; text-align:left; border:1px solid #ddd;">Etapa 1</th>
+    <th style="padding:10px; text-align:left; border:1px solid #ddd;">Etapa</th>
+    <th style="padding:10px; text-align:left; border:1px solid #ddd;">Hotel</th>
   </tr>
   <tr>
-    <td style="padding:10px; border:1px solid #ddd;">Movistar</td>
+    <td style="padding:10px; border:1px solid #ddd;">Etapa 1</td>
     <td style="padding:10px; border:1px solid #ddd;">Feel Viana</td>
   </tr>
 </table>
@@ -180,24 +46,27 @@ export default async function handler(req, res) {
   }
   
   try {
-    // GET /api/chat/files
+    // GET /api/chat/files - Devuelve archivos disponibles desde Supabase Storage
     if (req.method === 'GET' && req.url.includes('/files')) {
-      const files = await listDriveFiles();
+      const { data, error } = await supabase
+        .from('documents')
+        .select('*');
       
-      const formattedFiles = files.map(f => ({
-        id: f.id,
-        name: f.name,
-        type: f.mimeType.includes('spreadsheet') ? 'excel' :
-              f.mimeType.includes('google-apps.spreadsheet') ? 'sheet' :
-              f.name.endsWith('.gpx') ? 'gpx' : 'file',
-        mimeType: f.mimeType,
-        downloadUrl: f.name.match(/\.(gpx|kmz?|xlsx?|xls)$/i) ? getDownloadUrl(f.id) : null
+      if (error) {
+        return res.status(500).json({ success: false, error: error.message });
+      }
+      
+      const files = (data || []).map(doc => ({
+        id: doc.id,
+        name: doc.name,
+        type: doc.doc_type,
+        storage_path: doc.storage_path
       }));
       
-      return res.status(200).json({ success: true, files: formattedFiles });
+      return res.status(200).json({ success: true, files });
     }
     
-    // POST /api/chat
+    // POST /api/chat - Chat con contexto de Supabase
     if (req.method === 'POST') {
       const { message, team, history = [] } = req.body;
       
@@ -205,41 +74,83 @@ export default async function handler(req, res) {
         return res.status(400).json({ success: false, error: 'Mensaje requerido' });
       }
       
-      // Obtener archivos
-      const files = await listDriveFiles();
-      let context = '\n## DATOS DISPONIBLES EN DRIVE:\n\n';
+      // Obtener team_id
+      const { data: teamData } = await supabase
+        .from('teams')
+        .select('id')
+        .eq('code', team === 'public' ? 'MOVISTAR2025' : `${team.toUpperCase()}2025`)
+        .single();
       
-      // CAMBIO 2: Añadir links de descarga para GPX/KML
-      const trackFiles = files.filter(f => f.name.match(/\.(gpx|kmz?)$/i));
+      const teamId = teamData?.id || 1;
       
-      // Leer TODOS los archivos
-      for (const file of files) {
-        const content = await processFileContent(file);
-        
-        if (content) {
-          context += `\n### ${file.name}\n`;
-          context += JSON.stringify(content, null, 2);
-        } else {
-          context += `\n### ${file.name} - [No se pudo leer]\n`;
-        }
-      }
+      // Construir contexto desde Supabase
+      let context = '\n## DATOS DE O GRAN CAMIÑO 2025:\n\n';
       
-      // Añadir links de descarga al contexto
-      if (trackFiles.length > 0) {
-        context += '\n## ARCHIVOS DESCARGABLES (Rutas/Tracks):\n\n';
-        trackFiles.forEach(file => {
-          const type = file.name.match(/\.gpx$/i) ? 'GPX' : 'KML/KMZ';
-          context += `- 🗺️ ${file.name} (${type}): ${getDownloadUrl(file.id)}\n`;
+      // Hotels para este equipo
+      const { data: hotels } = await supabase
+        .from('hotels')
+        .select(`
+          stage_id,
+          hotel_name,
+          city,
+          address,
+          stages(stage_number, date, start_location, finish_location, distance_km)
+        `)
+        .eq('team_id', teamId);
+      
+      if (hotels && hotels.length > 0) {
+        context += '### HOTELES POR ETAPA:\n';
+        hotels.forEach(h => {
+          context += `- Etapa ${h.stages.stage_number}: ${h.hotel_name}, ${h.city}\n`;
         });
       }
       
-      // Crear prompt
+      // Stages
+      const { data: stages } = await supabase
+        .from('stages')
+        .select('*')
+        .order('stage_number');
+      
+      if (stages && stages.length > 0) {
+        context += '\n### ETAPAS:\n';
+        stages.forEach(s => {
+          context += `- Etapa ${s.stage_number} (${s.date}): ${s.start_location} → ${s.finish_location} (${s.distance_km}km)\n`;
+        });
+      }
+      
+      // Incidents
+      const { data: incidents } = await supabase
+        .from('incidents')
+        .select('*, stages(stage_number, date)')
+        .order('created_at', { ascending: false })
+        .limit(10);
+      
+      if (incidents && incidents.length > 0) {
+        context += '\n### INCIDENCIAS RECIENTES:\n';
+        incidents.forEach(i => {
+          context += `- Etapa ${i.stages.stage_number}: ${i.description}\n`;
+        });
+      }
+      
+      // Documents
+      const { data: documents } = await supabase
+        .from('documents')
+        .select('*');
+      
+      if (documents && documents.length > 0) {
+        context += '\n### DOCUMENTOS DISPONIBLES (Descargas):\n';
+        documents.forEach(d => {
+          const downloadUrl = `${process.env.SUPABASE_URL}/storage/v1/object/public/race-files${d.storage_path}`;
+          context += `- 📄 ${d.name}: ${downloadUrl}\n`;
+        });
+      }
+      
       const fullPrompt = SYSTEM_PROMPT + context;
       
       console.log('Sending to Claude:', {
         messageLength: message.length,
         contextLength: context.length,
-        files: files.length
+        team: team
       });
       
       // Llamar a Claude
