@@ -24,11 +24,15 @@ SIEMPRE en HTML elegante:
 <table style="width:100%; border-collapse:collapse;">
   <tr style="background:#667eea; color:white;">
     <th style="padding:10px; text-align:left; border:1px solid #ddd;">Etapa</th>
+    <th style="padding:10px; text-align:left; border:1px solid #ddd;">Fecha</th>
     <th style="padding:10px; text-align:left; border:1px solid #ddd;">Hotel</th>
+    <th style="padding:10px; text-align:left; border:1px solid #ddd;">Ciudad</th>
   </tr>
   <tr>
     <td style="padding:10px; border:1px solid #ddd;">Etapa 1</td>
+    <td style="padding:10px; border:1px solid #ddd;">26 Feb</td>
     <td style="padding:10px; border:1px solid #ddd;">Feel Viana</td>
+    <td style="padding:10px; border:1px solid #ddd;">Viana do Castelo</td>
   </tr>
 </table>
 
@@ -74,83 +78,114 @@ export default async function handler(req, res) {
         return res.status(400).json({ success: false, error: 'Mensaje requerido' });
       }
       
-      // Obtener team_id
-      const { data: teamData } = await supabase
-        .from('teams')
-        .select('id')
-        .eq('code', team === 'public' ? 'MOVISTAR2025' : `${team.toUpperCase()}2025`)
-        .single();
+      let teamId = null;
       
-      const teamId = teamData?.id || 1;
+      // Obtener team_id por código (team ya llega con código completo: UNOX2025)
+      if (team !== 'public') {
+        const { data: teamData } = await supabase
+          .from('teams')
+          .select('id')
+          .eq('code', team)
+          .single();
+        
+        teamId = teamData?.id;
+        
+        if (!teamId) {
+          return res.status(400).json({ 
+            success: false, 
+            error: `Equipo no encontrado: ${team}` 
+          });
+        }
+      }
       
       // Construir contexto desde Supabase
       let context = '\n## DATOS DE O GRAN CAMIÑO 2025:\n\n';
       
-      // Hotels para este equipo
-      const { data: hotels } = await supabase
-        .from('hotels')
-        .select(`
-          stage_id,
-          hotel_name,
-          city,
-          address,
-          stages(stage_number, date, start_location, finish_location, distance_km)
-        `)
-        .eq('team_id', teamId);
-      
-      if (hotels && hotels.length > 0) {
-        context += '### HOTELES POR ETAPA:\n';
-        hotels.forEach(h => {
-          context += `- Etapa ${h.stages.stage_number}: ${h.hotel_name}, ${h.city}\n`;
-        });
+      // Hotels para este equipo (si está autenticado)
+      if (teamId) {
+        const { data: hotels, error: hotelsError } = await supabase
+          .from('hotels')
+          .select(`
+            stage_id,
+            hotel_name,
+            city,
+            address,
+            stages(stage_number, date, start_location, finish_location, distance_km)
+          `)
+          .eq('team_id', teamId)
+          .order('stage_id');
+        
+        if (hotelsError) {
+          console.error('Error fetching hotels:', hotelsError);
+        } else if (hotels && hotels.length > 0) {
+          context += '### 🏨 HOTELES POR ETAPA:\n';
+          hotels.forEach(h => {
+            const dateFormatted = new Date(h.stages.date).toLocaleDateString('es-ES', { 
+              day: '2-digit', 
+              month: 'short' 
+            });
+            context += `- Etapa ${h.stages.stage_number} (${dateFormatted}): ${h.hotel_name}, ${h.city}\n`;
+          });
+        }
       }
       
-      // Stages
-      const { data: stages } = await supabase
+      // Stages (público)
+      const { data: stages, error: stagesError } = await supabase
         .from('stages')
         .select('*')
         .order('stage_number');
       
-      if (stages && stages.length > 0) {
-        context += '\n### ETAPAS:\n';
+      if (stagesError) {
+        console.error('Error fetching stages:', stagesError);
+      } else if (stages && stages.length > 0) {
+        context += '\n### 📅 ETAPAS:\n';
         stages.forEach(s => {
-          context += `- Etapa ${s.stage_number} (${s.date}): ${s.start_location} → ${s.finish_location} (${s.distance_km}km)\n`;
+          const dateFormatted = new Date(s.date).toLocaleDateString('es-ES', { 
+            day: '2-digit', 
+            month: 'short' 
+          });
+          context += `- Etapa ${s.stage_number} (${dateFormatted}): ${s.start_location} → ${s.finish_location} (${s.distance_km}km)\n`;
         });
       }
       
       // Incidents
-      const { data: incidents } = await supabase
+      const { data: incidents, error: incidentsError } = await supabase
         .from('incidents')
         .select('*, stages(stage_number, date)')
         .order('created_at', { ascending: false })
         .limit(10);
       
-      if (incidents && incidents.length > 0) {
-        context += '\n### INCIDENCIAS RECIENTES:\n';
+      if (incidentsError) {
+        console.error('Error fetching incidents:', incidentsError);
+      } else if (incidents && incidents.length > 0) {
+        context += '\n### ⚠️ INCIDENCIAS RECIENTES:\n';
         incidents.forEach(i => {
           context += `- Etapa ${i.stages.stage_number}: ${i.description}\n`;
         });
       }
       
       // Documents
-      const { data: documents } = await supabase
+      const { data: documents, error: docsError } = await supabase
         .from('documents')
         .select('*');
       
-      if (documents && documents.length > 0) {
-        context += '\n### DOCUMENTOS DISPONIBLES (Descargas):\n';
+      if (docsError) {
+        console.error('Error fetching documents:', docsError);
+      } else if (documents && documents.length > 0) {
+        context += '\n### 📄 DOCUMENTOS DISPONIBLES:\n';
         documents.forEach(d => {
           const downloadUrl = `${process.env.SUPABASE_URL}/storage/v1/object/public/race-files${d.storage_path}`;
-          context += `- 📄 ${d.name}: ${downloadUrl}\n`;
+          context += `- ${d.name}: ${downloadUrl}\n`;
         });
       }
       
       const fullPrompt = SYSTEM_PROMPT + context;
       
-      console.log('Sending to Claude:', {
+      console.log('Chat request:', {
         messageLength: message.length,
         contextLength: context.length,
-        team: team
+        teamId,
+        team
       });
       
       // Llamar a Claude
@@ -176,7 +211,7 @@ export default async function handler(req, res) {
     return res.status(405).json({ success: false, error: 'Método no permitido' });
     
   } catch (error) {
-    console.error('Error:', error);
+    console.error('Error en API:', error);
     return res.status(500).json({ 
       success: false, 
       error: error.message
