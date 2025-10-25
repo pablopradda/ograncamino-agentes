@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Agentes IA - O Gran Camiño 2025</title>
+    <title>O Gran Camiño - Asistente IA 2025</title>
     <style>
         * {
             margin: 0;
@@ -12,110 +12,150 @@
         }
         
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', sans-serif;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
             padding: 20px;
-        }
-        
-        .container {
-            max-width: 1400px;
-            margin: 0 auto;
         }
         
         /* ========== LOGIN SCREEN ========== */
         .login-screen {
-            max-width: 500px;
-            margin: 100px auto;
+            width: 100%;
+            max-width: 450px;
             background: white;
-            padding: 40px;
-            border-radius: 20px;
-            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
-            display: block;
+            border-radius: 24px;
+            padding: 50px 40px;
+            box-shadow: 0 25px 50px rgba(0,0,0,0.15);
+            display: flex;
+            flex-direction: column;
         }
         
         .login-screen.hidden {
-            display: none;
+            display: none !important;
         }
         
-        .login-screen h1 {
+        .login-logo {
             text-align: center;
-            margin-bottom: 10px;
-            color: #1e293b;
-            font-size: 2rem;
-        }
-        
-        .login-screen p {
-            text-align: center;
-            color: #64748b;
             margin-bottom: 30px;
         }
         
-        .team-select {
+        .login-logo .icon {
+            font-size: 3.5rem;
+            margin-bottom: 15px;
+        }
+        
+        .login-logo h1 {
+            font-size: 1.8rem;
+            color: #1a1a1a;
+            margin-bottom: 5px;
+            font-weight: 700;
+        }
+        
+        .login-logo p {
+            color: #666;
+            font-size: 0.95rem;
+        }
+        
+        .divider {
+            height: 1px;
+            background: #eee;
+            margin: 30px 0;
+        }
+        
+        .form-group {
             margin-bottom: 20px;
         }
         
-        .team-select label {
+        .form-group label {
             display: block;
-            margin-bottom: 8px;
+            margin-bottom: 10px;
             font-weight: 600;
-            color: #1e293b;
+            color: #1a1a1a;
+            font-size: 0.95rem;
         }
         
-        .team-select select {
+        .team-dropdown {
             width: 100%;
-            padding: 12px;
-            border: 2px solid #e5e7eb;
+            padding: 12px 16px;
+            border: 1.5px solid #e5e7eb;
             border-radius: 10px;
             font-size: 1rem;
+            cursor: pointer;
+            background: white;
+            transition: all 0.2s;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        
+        .team-dropdown:hover {
+            border-color: #667eea;
+            background: #f9fafb;
+        }
+        
+        .team-dropdown:focus {
             outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+        
+        .team-option {
+            padding: 12px 16px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
             cursor: pointer;
         }
         
-        .team-select select:focus {
-            border-color: #667eea;
+        .team-option:hover {
+            background: #f3f4f6;
         }
         
         .code-input {
-            margin-bottom: 20px;
-        }
-        
-        .code-input label {
-            display: block;
-            margin-bottom: 8px;
-            font-weight: 600;
-            color: #1e293b;
+            margin-bottom: 25px;
         }
         
         .code-input input {
             width: 100%;
-            padding: 12px;
-            border: 2px solid #e5e7eb;
+            padding: 12px 16px;
+            border: 1.5px solid #e5e7eb;
             border-radius: 10px;
             font-size: 1rem;
-            outline: none;
+            transition: all 0.2s;
+            letter-spacing: 1px;
+            font-family: 'Courier New', monospace;
+        }
+        
+        .code-input input:hover {
+            border-color: #667eea;
+            background: #f9fafb;
         }
         
         .code-input input:focus {
+            outline: none;
             border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
         }
         
         .login-btn {
             width: 100%;
-            padding: 14px;
+            padding: 12px;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
             border: none;
             border-radius: 10px;
-            font-size: 1.1rem;
+            font-size: 1rem;
             font-weight: 600;
             cursor: pointer;
-            transition: all 0.2s;
+            transition: all 0.3s;
+            margin-bottom: 12px;
         }
         
-        .login-btn:hover {
+        .login-btn:hover:not(:disabled) {
             transform: translateY(-2px);
-            box-shadow: 0 8px 20px rgba(102, 126, 234, 0.4);
+            box-shadow: 0 12px 24px rgba(102, 126, 234, 0.4);
         }
         
         .login-btn:disabled {
@@ -123,32 +163,28 @@
             cursor: not-allowed;
         }
         
-        .public-access {
-            text-align: center;
-            margin-top: 20px;
-            padding-top: 20px;
-            border-top: 1px solid #e5e7eb;
-        }
-        
-        .public-access button {
-            background: none;
-            border: none;
+        .public-btn {
+            width: 100%;
+            padding: 12px;
+            background: white;
             color: #667eea;
-            text-decoration: none;
+            border: 2px solid #667eea;
+            border-radius: 10px;
+            font-size: 1rem;
             font-weight: 600;
             cursor: pointer;
-            font-size: 1rem;
+            transition: all 0.3s;
         }
         
-        .public-access button:hover {
-            text-decoration: underline;
+        .public-btn:hover {
+            background: #f3f4f6;
         }
         
         .error-message {
-            background: #fef2f2;
-            border: 1px solid #fecaca;
-            color: #991b1b;
-            padding: 12px;
+            background: #fee;
+            border: 1px solid #fcc;
+            color: #c00;
+            padding: 12px 16px;
             border-radius: 8px;
             margin-bottom: 20px;
             font-size: 0.9rem;
@@ -157,63 +193,76 @@
         
         .error-message.show {
             display: block;
+            animation: slideDown 0.3s ease;
+        }
+        
+        @keyframes slideDown {
+            from { transform: translateY(-10px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
         }
         
         /* ========== APP SCREEN ========== */
         .app {
-            display: none;
+            display: none !important;
+            width: 100%;
+            height: 100vh;
+            max-width: 1400px;
+            background: white;
+            border-radius: 0;
+            flex-direction: column;
         }
         
         .app.active {
-            display: block;
+            display: flex !important;
         }
         
         .app-header {
             background: white;
-            padding: 20px;
-            border-radius: 16px;
-            margin-bottom: 20px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            border-bottom: 1px solid #e5e7eb;
+            padding: 16px 24px;
             display: flex;
             justify-content: space-between;
             align-items: center;
         }
         
-        .app-header-info {
+        .header-left {
             display: flex;
             align-items: center;
-            gap: 15px;
+            gap: 16px;
         }
         
-        .team-avatar {
-            width: 60px;
-            height: 60px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            border-radius: 50%;
+        .team-badge {
             display: flex;
             align-items: center;
-            justify-content: center;
-            font-size: 2rem;
+            gap: 12px;
+            padding: 8px 16px;
+            background: #f3f4f6;
+            border-radius: 10px;
         }
         
-        .app-header-text h1 {
+        .team-badge-icon {
             font-size: 1.5rem;
-            color: #1e293b;
         }
         
-        .app-header-text p {
-            color: #64748b;
-            font-size: 0.9rem;
+        .team-badge-text h2 {
+            font-size: 1rem;
+            color: #1a1a1a;
+            font-weight: 600;
+        }
+        
+        .team-badge-text p {
+            font-size: 0.8rem;
+            color: #666;
         }
         
         .logout-btn {
-            padding: 10px 20px;
+            padding: 8px 16px;
             background: white;
-            border: 2px solid #e5e7eb;
+            border: 1px solid #e5e7eb;
             border-radius: 8px;
             cursor: pointer;
-            transition: all 0.2s;
             font-weight: 600;
+            transition: all 0.2s;
         }
         
         .logout-btn:hover {
@@ -222,132 +271,99 @@
         }
         
         .main-content {
+            flex: 1;
             display: grid;
-            grid-template-columns: 300px 1fr;
-            gap: 20px;
+            grid-template-columns: 280px 1fr;
+            gap: 0;
+            overflow: hidden;
         }
         
         /* ========== SIDEBAR ========== */
         .sidebar {
-            background: white;
-            border-radius: 16px;
+            background: #f9fafb;
+            border-right: 1px solid #e5e7eb;
             padding: 20px;
-            height: fit-content;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            overflow-y: auto;
         }
         
         .sidebar h3 {
             margin-bottom: 15px;
-            color: #1e293b;
-            font-size: 1.1rem;
+            color: #1a1a1a;
+            font-size: 0.95rem;
+            font-weight: 600;
         }
         
         .files-list {
-            max-height: 600px;
-            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
         }
         
         .file-item {
             padding: 12px;
-            margin-bottom: 8px;
-            background: #f8fafc;
+            background: white;
             border-radius: 8px;
+            display: flex;
+            gap: 10px;
+            align-items: flex-start;
             cursor: pointer;
             transition: all 0.2s;
-            display: flex;
-            align-items: center;
-            gap: 10px;
+            border: 1px solid #e5e7eb;
         }
         
         .file-item:hover {
-            background: #eff6ff;
-            transform: translateX(4px);
+            border-color: #667eea;
+            box-shadow: 0 2px 8px rgba(102, 126, 234, 0.1);
         }
         
         .file-icon {
             font-size: 1.5rem;
-            min-width: 30px;
+            flex-shrink: 0;
         }
         
         .file-info {
             flex: 1;
-            min-width: 0;
         }
         
         .file-name {
+            font-size: 0.9rem;
             font-weight: 600;
-            color: #1e293b;
+            color: #1a1a1a;
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
-            font-size: 0.9rem;
         }
         
         .file-type {
             font-size: 0.8rem;
-            color: #94a3b8;
+            color: #999;
         }
         
-        .loading-text {
-            color: #94a3b8;
-            text-align: center;
-            padding: 20px;
-            font-size: 0.9rem;
-        }
-        
-        .error-text {
-            color: #dc2626;
-            text-align: center;
-            padding: 20px;
-            font-size: 0.9rem;
-        }
-        
-        /* ========== CHAT CONTAINER ========== */
-        .chat-container {
-            background: white;
-            border-radius: 16px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        /* ========== CHAT AREA ========== */
+        .chat-area {
             display: flex;
             flex-direction: column;
-            height: 700px;
-        }
-        
-        .chat-header {
-            padding: 20px;
-            border-bottom: 1px solid #e5e7eb;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            border-radius: 16px 16px 0 0;
-        }
-        
-        .chat-header h2 {
-            font-size: 1.2rem;
+            background: white;
         }
         
         .messages {
             flex: 1;
             overflow-y: auto;
-            padding: 20px;
+            padding: 24px;
             display: flex;
             flex-direction: column;
-            gap: 15px;
+            gap: 16px;
         }
         
         .message {
             display: flex;
-            gap: 10px;
-            animation: fadeIn 0.3s ease-in;
+            gap: 12px;
+            animation: fadeIn 0.3s ease;
         }
         
         @keyframes fadeIn {
-            from {
-                opacity: 0;
-                transform: translateY(10px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
         }
         
         .message.user {
@@ -356,120 +372,126 @@
         
         .message-avatar {
             font-size: 1.5rem;
-            min-width: 40px;
+            width: 32px;
+            height: 32px;
             display: flex;
-            align-items: flex-end;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
         }
         
         .message.user .message-avatar {
-            order: 2;
+            background: #e5e7eb;
+            border-radius: 50%;
         }
         
         .message-content {
-            max-width: 60%;
             padding: 12px 16px;
             border-radius: 12px;
+            max-width: 70%;
             word-wrap: break-word;
-            line-height: 1.5;
-        }
-        
-        .message.agent .message-content {
-            background: #f1f5f9;
-            color: #1e293b;
         }
         
         .message.user .message-content {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: #667eea;
             color: white;
         }
         
-        .message-content a {
-            color: inherit;
-            text-decoration: underline;
-            font-weight: 600;
+        .message.agent .message-content {
+            background: #f3f4f6;
+            color: #1a1a1a;
         }
         
-        .message.user .message-content a {
-            color: #fff;
+        .message.agent .message-content a {
+            color: #667eea;
+            text-decoration: none;
+        }
+        
+        .message.agent .message-content a:hover {
+            text-decoration: underline;
         }
         
         .typing-indicator {
             display: flex;
             gap: 4px;
-            align-items: flex-end;
+            align-items: center;
+            padding: 12px 16px;
+            background: #f3f4f6;
+            border-radius: 12px;
         }
         
         .typing-dot {
             width: 8px;
             height: 8px;
-            background: #94a3b8;
+            background: #999;
             border-radius: 50%;
             animation: typing 1.4s infinite;
         }
         
-        .typing-dot:nth-child(2) {
-            animation-delay: 0.2s;
-        }
-        
-        .typing-dot:nth-child(3) {
-            animation-delay: 0.4s;
-        }
+        .typing-dot:nth-child(2) { animation-delay: 0.2s; }
+        .typing-dot:nth-child(3) { animation-delay: 0.4s; }
         
         @keyframes typing {
-            0%, 60%, 100% { transform: translateY(0); }
-            30% { transform: translateY(-10px); }
+            0%, 60%, 100% { opacity: 0.5; }
+            30% { opacity: 1; }
+        }
+        
+        /* ========== CHAT FOOTER ========== */
+        .chat-footer {
+            border-top: 1px solid #e5e7eb;
+            padding: 20px 24px;
+            background: white;
         }
         
         .suggestions {
-            padding: 15px 20px;
-            border-bottom: 1px solid #e5e7eb;
             display: flex;
-            gap: 10px;
+            gap: 8px;
+            margin-bottom: 16px;
             overflow-x: auto;
+            padding-bottom: 8px;
         }
         
         .suggestion-btn {
-            padding: 8px 12px;
-            background: #f1f5f9;
+            padding: 8px 14px;
+            background: #f3f4f6;
             border: 1px solid #e5e7eb;
-            border-radius: 8px;
+            border-radius: 20px;
             cursor: pointer;
-            white-space: nowrap;
             font-size: 0.9rem;
+            white-space: nowrap;
             transition: all 0.2s;
         }
         
         .suggestion-btn:hover {
-            background: #e0e7ff;
             border-color: #667eea;
+            background: #e5e7eb;
         }
         
-        .chat-footer {
-            padding: 20px;
-            border-top: 1px solid #e5e7eb;
+        .input-group {
             display: flex;
-            gap: 10px;
+            gap: 8px;
         }
         
-        .chat-footer textarea {
+        .input-group textarea {
             flex: 1;
-            padding: 12px;
-            border: 2px solid #e5e7eb;
+            padding: 12px 16px;
+            border: 1px solid #e5e7eb;
             border-radius: 10px;
             font-size: 1rem;
             font-family: inherit;
             resize: none;
+            max-height: 100px;
+            transition: all 0.2s;
+        }
+        
+        .input-group textarea:focus {
             outline: none;
-            min-height: 50px;
-            max-height: 120px;
-        }
-        
-        .chat-footer textarea:focus {
             border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
         }
         
-        .chat-footer button {
-            padding: 12px 20px;
+        .input-group button {
+            padding: 12px 24px;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
             border: none;
@@ -477,109 +499,111 @@
             cursor: pointer;
             font-weight: 600;
             transition: all 0.2s;
-            white-space: nowrap;
         }
         
-        .chat-footer button:hover {
+        .input-group button:hover:not(:disabled) {
             transform: translateY(-2px);
-            box-shadow: 0 8px 20px rgba(102, 126, 234, 0.4);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
         }
         
-        .chat-footer button:disabled {
+        .input-group button:disabled {
             opacity: 0.6;
             cursor: not-allowed;
         }
         
-        /* ========== RESPONSIVE ========== */
-        @media (max-width: 768px) {
+        .loading-text, .error-text {
+            color: #999;
+            text-align: center;
+            padding: 20px;
+        }
+        
+        .error-text { color: #c00; }
+        
+        /* ========== RESPONSIVO ========== */
+        @media (max-width: 900px) {
             .main-content {
                 grid-template-columns: 1fr;
             }
             
-            .chat-container {
-                height: 500px;
+            .sidebar {
+                display: none;
             }
             
             .message-content {
                 max-width: 85%;
             }
-            
+        }
+        
+        @media (max-width: 600px) {
             .login-screen {
-                margin: 50px auto;
-                padding: 20px;
+                padding: 40px 24px;
+            }
+            
+            .app-header {
+                flex-wrap: wrap;
             }
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <!-- LOGIN SCREEN -->
-        <div id="loginScreen" class="login-screen">
-            <h1>🚴 O Gran Camiño</h1>
-            <p>Agentes IA 2025</p>
-            
-            <div id="errorMessage" class="error-message"></div>
-            
-            <div class="team-select">
-                <label>Selecciona tu equipo:</label>
-                <select id="teamSelect">
-                    <option value="">-- Elige un equipo --</option>
-                    <option value="movistar">🟠 Movistar Team</option>
-                    <option value="ineos">🔵 Ineos Grenadiers</option>
-                    <option value="jumbo">🟡 Jumbo Visma</option>
-                    <option value="uae">🔴 UAE Emirates</option>
-                </select>
-            </div>
-            
-            <div class="code-input">
-                <label>Código de acceso:</label>
-                <input type="password" id="accessCode" placeholder="Ingresa el código">
-            </div>
-            
-            <button class="login-btn" onclick="handleLogin()">Entrar</button>
-            
-            <div class="public-access">
-                <button onclick="accessPublic()">Acceso público →</button>
-            </div>
+    <!-- LOGIN SCREEN -->
+    <div id="loginScreen" class="login-screen">
+        <div class="login-logo">
+            <div class="icon">🚴</div>
+            <h1>O Gran Camiño</h1>
+            <p>Asistente IA 2025</p>
         </div>
         
-        <!-- APP -->
-        <div id="app" class="app">
-            <div class="app-header">
-                <div class="app-header-info">
-                    <div class="team-avatar" id="teamIcon">🌍</div>
-                    <div class="app-header-text">
-                        <h1 id="teamName">O Gran Camiño</h1>
-                        <p id="teamSubtitle">Agentes IA 2025</p>
+        <div id="errorMessage" class="error-message"></div>
+        
+        <div class="divider"></div>
+        
+        <div class="form-group">
+            <label>Selecciona tu equipo:</label>
+            <select id="teamSelect" class="team-dropdown">
+                <option value="">-- Elige un equipo --</option>
+            </select>
+        </div>
+        
+        <div class="form-group code-input">
+            <label>Código de acceso:</label>
+            <input type="password" id="accessCode" placeholder="Ingresa el código" onkeypress="if(event.key==='Enter') handleLogin()">
+        </div>
+        
+        <button class="login-btn" onclick="handleLogin()">Entrar</button>
+        <button class="public-btn" onclick="accessPublic()">Acceso público →</button>
+    </div>
+    
+    <!-- APP SCREEN -->
+    <div id="app" class="app">
+        <div class="app-header">
+            <div class="header-left">
+                <div class="team-badge">
+                    <div class="team-badge-icon" id="teamIcon">🚴</div>
+                    <div class="team-badge-text">
+                        <h2 id="teamName">O Gran Camiño</h2>
+                        <p id="teamSubtitle">Asistente IA</p>
                     </div>
                 </div>
-                <button class="logout-btn" onclick="handleLogout()">Salir</button>
+            </div>
+            <button class="logout-btn" onclick="handleLogout()">Salir</button>
+        </div>
+        
+        <div class="main-content">
+            <div class="sidebar">
+                <h3>📄 Archivos</h3>
+                <div id="filesList" class="files-list">
+                    <div class="loading-text">Cargando...</div>
+                </div>
             </div>
             
-            <div class="main-content">
-                <!-- SIDEBAR -->
-                <div class="sidebar">
-                    <h3>📁 Archivos</h3>
-                    <div class="files-list" id="filesList">
-                        <div class="loading-text">Cargando archivos...</div>
-                    </div>
-                </div>
+            <div class="chat-area">
+                <div id="messages" class="messages"></div>
                 
-                <!-- CHAT -->
-                <div class="chat-container">
-                    <div class="chat-header">
-                        <h2>💬 Asistente O Gran Camiño</h2>
-                    </div>
+                <div class="chat-footer">
+                    <div class="suggestions" id="suggestions"></div>
                     
-                    <div class="messages" id="messages"></div>
-                    
-                    <div class="suggestions">
-                        <button class="suggestion-btn" onclick="sendSuggestion('¿Qué archivos tengo?')">📁 Archivos</button>
-                        <button class="suggestion-btn" onclick="sendSuggestion('¿Dónde es el PPO?')">📍 PPO</button>
-                        <button class="suggestion-btn" onclick="sendSuggestion('Información general')">ℹ️ Info</button>
-                    </div>
-                    
-                    <div class="chat-footer">
+                    <div class="input-group">
                         <textarea id="messageInput" placeholder="Escribe tu pregunta..." onkeypress="handleChatKeyPress(event)"></textarea>
                         <button id="sendButton" onclick="sendMessage()">Enviar</button>
                     </div>
@@ -589,41 +613,63 @@
     </div>
     
     <script>
-        const TEAM_CONFIG = {
-            movistar: { name: 'Movistar Team', icon: '🟠', code: 'MOVISTAR2025' },
-            ineos: { name: 'Ineos Grenadiers', icon: '🔵', code: 'INEOS2025' },
-            jumbo: { name: 'Jumbo Visma', icon: '🟡', code: 'JUMBO2025' },
-            uae: { name: 'UAE Emirates', icon: '🔴', code: 'UAE2025' },
-            public: { name: 'Acceso Público', icon: '🌍', code: null }
-        };
+        const TEAMS = [
+            { name: 'Premier Tech', icon: '🟣', code: 'PREMIER2025' },
+            { name: 'Movistar Team', icon: '🟠', code: 'MOVISTAR2025' },
+            { name: 'FdJ', icon: '🔵', code: 'FDJ2025' },
+            { name: 'Uno X', icon: '⚫', code: 'UNOX2025' },
+            { name: 'Soudal Quick Step', icon: '🟤', code: 'SOUDAL2025' },
+            { name: 'Polti', icon: '⚪', code: 'POLTI2025' },
+            { name: 'Bardiani', icon: '🔴', code: 'BARDIANI2025' },
+            { name: 'Kern', icon: '🟡', code: 'KERN2025' },
+            { name: 'Euskadi', icon: '🟢', code: 'EUSKADI2025' },
+            { name: 'Burgos', icon: '🔶', code: 'BURGOS2025' },
+            { name: 'Caja Rural', icon: '🟠', code: 'CAJARURAL2025' },
+            { name: 'Petrolike', icon: '🛢️', code: 'PETROLIKE2025' },
+            { name: 'Arabay', icon: '🏜️', code: 'ARABAY2025' },
+            { name: 'Sabgal', icon: '🇸🇾', code: 'SABGAL2025' },
+            { name: 'Efapel', icon: '📄', code: 'EFAPEL2025' },
+            { name: 'Mortagua', icon: '🏛️', code: 'MORTAGUA2025' },
+            { name: 'Boavista', icon: '⛵', code: 'BOAVISTA2025' },
+            { name: 'Tavira', icon: '🏰', code: 'TAVIRA2025' }
+        ];
         
         let currentSession = null;
         
-        function showError(message) {
-            const errorDiv = document.getElementById('errorMessage');
-            errorDiv.textContent = message;
-            errorDiv.classList.add('show');
-            setTimeout(() => {
-                errorDiv.classList.remove('show');
-            }, 5000);
+        // Populate teams
+        window.addEventListener('DOMContentLoaded', () => {
+            const select = document.getElementById('teamSelect');
+            TEAMS.forEach(team => {
+                const option = document.createElement('option');
+                option.value = team.code;
+                option.textContent = `${team.icon} ${team.name}`;
+                select.appendChild(option);
+            });
+        });
+        
+        function showError(msg) {
+            const err = document.getElementById('errorMessage');
+            err.textContent = msg;
+            err.classList.add('show');
+            setTimeout(() => err.classList.remove('show'), 4000);
         }
         
         function handleLogin() {
-            const team = document.getElementById('teamSelect').value;
             const code = document.getElementById('accessCode').value;
+            const select = document.getElementById('teamSelect');
             
-            if (!team) {
+            if (!select.value) {
                 showError('❌ Selecciona un equipo');
                 return;
             }
             
             if (!code) {
-                showError('❌ Ingresa el código de acceso');
+                showError('❌ Ingresa el código');
                 return;
             }
             
-            const config = TEAM_CONFIG[team];
-            if (code !== config.code) {
+            const team = TEAMS.find(t => t.code === select.value);
+            if (!team || code !== team.code) {
                 showError('❌ Código incorrecto');
                 return;
             }
@@ -632,31 +678,19 @@
         }
         
         function accessPublic() {
-            startSession('public');
+            const team = { name: 'Acceso Público', icon: '🌍', code: 'public' };
+            startSession(team);
         }
         
         function startSession(team) {
-            currentSession = { team: team, history: [] };
+            currentSession = { team, history: [] };
             
-            const config = TEAM_CONFIG[team];
-            document.getElementById('teamIcon').textContent = config.icon;
-            document.getElementById('teamName').textContent = config.name;
-            document.getElementById('teamSubtitle').textContent = 'Agentes IA 2025';
-            
+            document.getElementById('teamIcon').textContent = team.icon;
+            document.getElementById('teamName').textContent = team.name;
             document.getElementById('loginScreen').classList.add('hidden');
             document.getElementById('app').classList.add('active');
             
-            addMessage(
-                `¡Hola ${config.name}! 👋<br><br>
-                Soy tu asistente inteligente de O Gran Camiño.<br>
-                Puedo ayudarte con:<br>
-                • 📁 Información de tus archivos<br>
-                • 🗺️ Rutas y tracks<br>
-                • 📊 Datos y horarios<br>
-                • 🔗 Enlaces a Google Maps<br><br>
-                ¿En qué puedo ayudarte?`,
-                'agent'
-            );
+            addMessage(`¡Hola! 👋 Soy tu asistente de O Gran Camiño.<br><br>Puedo ayudarte con:<br>📍 Hoteles por etapa<br>🗺️ Rutas y tracks<br>📊 Datos de las etapas<br>📄 Descargas<br><br>¿Qué necesitas?`, 'agent');
             
             loadFiles();
         }
@@ -667,164 +701,131 @@
             document.getElementById('loginScreen').classList.remove('hidden');
             document.getElementById('accessCode').value = '';
             document.getElementById('messages').innerHTML = '';
-            document.getElementById('filesList').innerHTML = '<div class="loading-text">Cargando archivos...</div>';
         }
         
         async function loadFiles() {
-            const filesList = document.getElementById('filesList');
-            filesList.innerHTML = '<div class="loading-text">Cargando desde Drive...</div>';
+            const list = document.getElementById('filesList');
+            list.innerHTML = '<div class="loading-text">Cargando...</div>';
             
             try {
-                const response = await fetch('/api/chat/files');
-                const data = await response.json();
-                
-                if (!response.ok) {
-                    throw new Error(data.error || 'Error al cargar archivos');
-                }
+                const res = await fetch('/api/chat/files');
+                const data = await res.json();
                 
                 const files = data.files || [];
-                
                 if (files.length === 0) {
-                    filesList.innerHTML = '<div class="loading-text">No hay archivos disponibles</div>';
+                    list.innerHTML = '<div class="loading-text">No hay archivos</div>';
                     return;
                 }
                 
-                filesList.innerHTML = files.slice(0, 20).map(file => `
+                list.innerHTML = files.map(f => `
                     <div class="file-item">
-                        <div class="file-icon">${getFileIcon(file.type)}</div>
+                        <div class="file-icon">${getFileIcon(f.type)}</div>
                         <div class="file-info">
-                            <div class="file-name">${file.name}</div>
-                            <div class="file-type">${file.type}</div>
+                            <div class="file-name">${f.name}</div>
+                            <div class="file-type">${f.type}</div>
                         </div>
                     </div>
                 `).join('');
-                
-            } catch (error) {
-                console.error('Error loading files:', error);
-                filesList.innerHTML = '<div class="error-text">⚠️ Error al cargar archivos</div>';
+            } catch (e) {
+                list.innerHTML = '<div class="error-text">⚠️ Error cargando</div>';
             }
         }
         
         function getFileIcon(type) {
-            const icons = {
-                'excel': '📊',
-                'pdf': '📄',
-                'gpx': '🗺️',
-                'doc': '📝',
-                'file': '📎'
-            };
+            const icons = { pdf: '📄', gpx: '🗺️', excel: '📊', doc: '📝' };
             return icons[type] || '📎';
         }
         
-        function handleChatKeyPress(event) {
-            if (event.key === 'Enter' && !event.shiftKey) {
-                event.preventDefault();
+        function handleChatKeyPress(e) {
+            if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
                 sendMessage();
             }
         }
         
-        function sendSuggestion(text) {
-            document.getElementById('messageInput').value = text;
-            sendMessage();
-        }
-        
         async function sendMessage() {
             const input = document.getElementById('messageInput');
-            const sendButton = document.getElementById('sendButton');
-            const message = input.value.trim();
+            const msg = input.value.trim();
             
-            if (!message) return;
+            if (!msg) return;
             
             input.value = '';
             input.disabled = true;
-            sendButton.disabled = true;
+            document.getElementById('sendButton').disabled = true;
             
-            addMessage(message, 'user');
+            addMessage(msg, 'user');
             showTyping();
             
             try {
-                const response = await fetch('/api/chat', {
+                const res = await fetch('/api/chat', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
-                        message: message,
-                        team: currentSession.team,
+                        message: msg,
+                        team: currentSession.team.code,
                         history: currentSession.history
                     })
                 });
                 
-                const data = await response.json();
-                
-                if (!response.ok) {
-                    throw new Error(data.error || 'Error del servidor');
-                }
+                const data = await res.json();
+                if (!res.ok) throw new Error(data.error);
                 
                 hideTyping();
                 addMessage(data.response, 'agent');
-                
-                currentSession.history.push({ role: 'user', content: message });
+                currentSession.history.push({ role: 'user', content: msg });
                 currentSession.history.push({ role: 'assistant', content: data.response });
-                
-            } catch (error) {
+            } catch (e) {
                 hideTyping();
-                addMessage('❌ Error: ' + error.message, 'agent');
-                console.error('Error:', error);
+                addMessage('❌ Error: ' + e.message, 'agent');
             } finally {
                 input.disabled = false;
-                sendButton.disabled = false;
+                document.getElementById('sendButton').disabled = false;
                 input.focus();
             }
         }
         
         function addMessage(text, sender) {
-            const messagesDiv = document.getElementById('messages');
-            const messageDiv = document.createElement('div');
-            messageDiv.className = `message ${sender}`;
+            const div = document.createElement('div');
+            div.className = `message ${sender}`;
             
-            const avatar = sender === 'user' ? '👤' : TEAM_CONFIG[currentSession.team].icon;
-            
-            messageDiv.innerHTML = `
+            const avatar = sender === 'user' ? '👤' : currentSession.team.icon;
+            div.innerHTML = `
                 <div class="message-avatar">${avatar}</div>
                 <div class="message-content">${text}</div>
             `;
             
-            messagesDiv.appendChild(messageDiv);
-            messagesDiv.scrollTop = messagesDiv.scrollHeight;
+            document.getElementById('messages').appendChild(div);
+            document.getElementById('messages').scrollTop = document.getElementById('messages').scrollHeight;
         }
         
         function showTyping() {
-            const messagesDiv = document.getElementById('messages');
-            const typingDiv = document.createElement('div');
-            typingDiv.className = 'message agent';
-            typingDiv.id = 'typing-indicator';
-            
-            typingDiv.innerHTML = `
-                <div class="message-avatar">${TEAM_CONFIG[currentSession.team].icon}</div>
+            const div = document.createElement('div');
+            div.className = 'message agent';
+            div.id = 'typing';
+            div.innerHTML = `
+                <div class="message-avatar">${currentSession.team.icon}</div>
                 <div class="typing-indicator">
                     <div class="typing-dot"></div>
                     <div class="typing-dot"></div>
                     <div class="typing-dot"></div>
                 </div>
             `;
-            
-            messagesDiv.appendChild(typingDiv);
-            messagesDiv.scrollTop = messagesDiv.scrollHeight;
+            document.getElementById('messages').appendChild(div);
+            document.getElementById('messages').scrollTop = document.getElementById('messages').scrollHeight;
         }
         
         function hideTyping() {
-            const typing = document.getElementById('typing-indicator');
-            if (typing) typing.remove();
+            const t = document.getElementById('typing');
+            if (t) t.remove();
         }
         
         // Auto-resize textarea
-        document.addEventListener('DOMContentLoaded', function() {
-            const textarea = document.getElementById('messageInput');
-            if (textarea) {
-                textarea.addEventListener('input', function() {
-                    this.style.height = 'auto';
-                    this.style.height = Math.min(this.scrollHeight, 120) + 'px';
-                });
-            }
+        document.addEventListener('DOMContentLoaded', () => {
+            const ta = document.getElementById('messageInput');
+            ta.addEventListener('input', function() {
+                this.style.height = 'auto';
+                this.style.height = Math.min(this.scrollHeight, 100) + 'px';
+            });
         });
     </script>
 </body>
