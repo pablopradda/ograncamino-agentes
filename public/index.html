@@ -13,7 +13,7 @@
         }
         
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', sans-serif;
+            font-family: system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
             background: linear-gradient(135deg, #001f3f 0%, #003d7a 50%, #1e90ff 100%);
             min-height: 100vh;
             color: #1a1a1a;
@@ -188,22 +188,21 @@
         .login-btn {
             width: 100%;
             padding: 14px;
-            background: linear-gradient(135deg, #001f3f 0%, #1e90ff 100%);
+            background: #001f3f;
             color: white;
             border: none;
-            border-radius: 10px;
+            border-radius: 8px;
             font-size: 1rem;
             font-weight: 700;
             cursor: pointer;
-            transition: all 0.3s;
+            transition: background 0.2s;
             margin-bottom: 12px;
             text-transform: uppercase;
             letter-spacing: 1px;
         }
         
         .login-btn:hover:not(:disabled) {
-            transform: translateY(-3px);
-            box-shadow: 0 15px 30px rgba(30, 144, 255, 0.3);
+            background: #003d7a;
         }
         
         .login-btn:disabled {
@@ -215,20 +214,19 @@
             width: 100%;
             padding: 14px;
             background: white;
-            color: #1e90ff;
-            border: 2px solid #1e90ff;
-            border-radius: 10px;
+            color: #001f3f;
+            border: 2px solid #001f3f;
+            border-radius: 8px;
             font-size: 1rem;
             font-weight: 700;
             cursor: pointer;
-            transition: all 0.3s;
+            transition: background 0.2s;
             text-transform: uppercase;
             letter-spacing: 1px;
         }
         
         .public-btn:hover {
-            background: #f0f8ff;
-            transform: translateY(-2px);
+            background: #f5f5f5;
         }
         
         .error-message {
@@ -873,6 +871,7 @@
                 logout: 'Salir',
                 noResources: 'No hay recursos',
                 welcome: (team) => `¡Bienvenido ${team}! 🚴‍♂️<br><br>Soy tu Team Coach de O Gran Camiño 2025.<br><br><strong>Puedo ayudarte con:</strong><br>🏨 Hoteles por etapa<br>🗺️ Rutas y distancias<br>📅 Fechas de etapas<br>📊 Información de etapas<br><br>¿Qué necesitas?`,
+                welcomePublic: (team) => `¡Bienvenido ${team}! 🚴‍♂️<br><br>Soy tu Team Coach de O Gran Camiño 2025.<br><br><strong>Puedo ayudarte con:</strong><br>🗺️ Rutas y distancias<br>📅 Fechas de etapas<br>📊 Información de etapas<br><br>¿Qué necesitas?`,
                 error: (msg) => `❌ Error: ${msg}`,
                 publicAccess: 'Acceso Público'
             },
@@ -893,6 +892,7 @@
                 logout: 'Saír',
                 noResources: 'Non hai recursos',
                 welcome: (team) => `¡Benvido ${team}! 🚴‍♂️<br><br>Sou o teu Team Coach de O Gran Camiño 2025.<br><br>Podo axudarche con:<br>🏨 Hotéis por etapa<br>🗺️ Rutas e distancias<br>📅 Datas das etapas<br>📊 Información das etapas<br><br>¿Que necesitas?`,
+                welcomePublic: (team) => `¡Benvido ${team}! 🚴‍♂️<br><br>Sou o teu Team Coach de O Gran Camiño 2025.<br><br>Podo axudarche con:<br>🗺️ Rutas e distancias<br>📅 Datas das etapas<br>📊 Información das etapas<br><br>¿Que necesitas?`,
                 error: (msg) => `❌ Error: ${msg}`,
                 publicAccess: 'Acceso Público'
             },
@@ -913,6 +913,7 @@
                 logout: 'Logout',
                 noResources: 'No resources',
                 welcome: (team) => `Welcome ${team}! 🚴‍♂️<br><br>I am your O Gran Camiño 2025 Team Coach.<br><br>I can help you with:<br>🏨 Hotels per stage<br>🗺️ Routes and distances<br>📅 Stage dates<br>📊 Stage information<br><br>What do you need?`,
+                welcomePublic: (team) => `Welcome ${team}! 🚴‍♂️<br><br>I am your O Gran Camiño 2025 Team Coach.<br><br>I can help you with:<br>🗺️ Routes and distances<br>📅 Stage dates<br>📊 Stage information<br><br>What do you need?`,
                 error: (msg) => `❌ Error: ${msg}`,
                 publicAccess: 'Public Access'
             }
@@ -1047,7 +1048,14 @@
             document.getElementById('app').classList.add('active');
             document.querySelector('.language-selector').classList.add('hidden');
             
-            addMessage(t('welcome', team.name), 'agent');
+            // Mensaje de bienvenida diferenciado
+            let welcomeMsg;
+            if (team.code === 'public') {
+                welcomeMsg = t('welcomePublic', team.name);
+            } else {
+                welcomeMsg = t('welcome', team.name);
+            }
+            addMessage(welcomeMsg, 'agent');
             loadFiles();
         }
         
