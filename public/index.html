@@ -360,8 +360,8 @@
         
         /* ========== SIDEBAR ========== */
         .sidebar {
-            background: #f5f7fa;
-            border-right: 1px solid #e5e7eb;
+            background: #F9F9F9;
+            border-right: 1px solid #EDEDED;
             padding: 20px;
             overflow-y: auto;
         }
@@ -431,10 +431,29 @@
             overflow-y: auto;
             overflow-x: hidden;
             padding: 24px;
+            padding-right: 32px;
             display: flex;
             flex-direction: column;
             gap: 16px;
             background: #fff;
+        }
+        
+        .messages::-webkit-scrollbar {
+            width: 8px;
+            margin-right: 8px;
+        }
+        
+        .messages::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        
+        .messages::-webkit-scrollbar-thumb {
+            background: #DBDCE0;
+            border-radius: 4px;
+        }
+        
+        .messages::-webkit-scrollbar-thumb:hover {
+            background: #c5c7cc;
         }
         
         .message {
@@ -487,9 +506,62 @@
             background: transparent;
             color: #1a1a1a;
             border: none;
-            padding: 16px;
-            line-height: 1.6;
+            padding: 16px 0;
+            line-height: 1.7;
             border-radius: 0;
+            font-size: 1rem;
+        }
+        
+        .message.agent .message-content h1,
+        .message.agent .message-content h2,
+        .message.agent .message-content h3 {
+            font-weight: 700;
+            margin-top: 16px;
+            margin-bottom: 8px;
+            font-size: 1.1rem;
+        }
+        
+        .message.agent .message-content h1 {
+            font-size: 1.2rem;
+        }
+        
+        .message.agent .message-content p {
+            margin-bottom: 12px;
+        }
+        
+        .message.agent .message-content ul,
+        .message.agent .message-content ol {
+            margin: 12px 0;
+            padding-left: 24px;
+        }
+        
+        .message.agent .message-content li {
+            margin-bottom: 8px;
+        }
+        
+        .message.agent .message-content strong {
+            font-weight: 700;
+        }
+        
+        .message.agent .message-content code {
+            background: #f5f5f5;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.95rem;
+        }
+        
+        .message.agent .message-content pre {
+            background: #f5f5f5;
+            padding: 12px;
+            border-radius: 6px;
+            overflow-x: auto;
+            margin: 12px 0;
+        }
+        
+        .message.agent .message-content pre code {
+            background: none;
+            padding: 0;
         }
         
         /* ========== INFO CARDS CLEAN ========== */
@@ -574,16 +646,17 @@
             justify-content: space-between;
             gap: 8px;
             flex: 1;
-            background: #F4F4F4;
-            border-radius: 24px;
+            background: #fff;
+            border: 1px solid #D6D6D6;
+            border-radius: 50px;
             padding: 10px 12px 10px 16px;
             transition: all 0.2s;
             height: auto;
         }
         
         .input-group:focus-within {
-            background: #F4F4F4;
-            box-shadow: 0 0 0 2px rgba(30, 144, 255, 0.1);
+            background: #fff;
+            border-color: #D6D6D6;
         }
         
         .input-group textarea {
@@ -601,7 +674,7 @@
         }
         
         .input-group textarea::placeholder {
-            color: #ccc;
+            color: #999;
         }
         
         .input-group textarea:focus {
@@ -610,8 +683,8 @@
         
         .input-group button.send-btn {
             padding: 0;
-            background: white;
-            color: #000;
+            background: #000;
+            color: white;
             border: none;
             border-radius: 50%;
             cursor: pointer;
@@ -630,12 +703,12 @@
         
         .input-group button.send-btn i {
             font-size: 1.2rem;
-            color: #000;
+            color: white;
         }
         
         .input-group button.send-btn:hover:not(:disabled) {
             transform: scale(1.1);
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+            background: #1a1a1a;
         }
         
         .input-group button.send-btn:disabled {
@@ -1003,7 +1076,6 @@
         
         async function loadFiles() {
             const list = document.getElementById('filesList');
-            list.innerHTML = `<div class="loading-text">${t('loading')}</div>`;
             
             try {
                 const res = await fetch('/api/chat/files');
@@ -1011,7 +1083,7 @@
                 
                 const files = data.files || [];
                 if (files.length === 0) {
-                    list.innerHTML = `<div class="loading-text">${t('noResources')}</div>`;
+                    list.innerHTML = '';
                     return;
                 }
                 
@@ -1023,7 +1095,7 @@
                     </div>
                 `).join('');
             } catch (e) {
-                list.innerHTML = `<div class="loading-text">⚠️ Error</div>`;
+                list.innerHTML = '';
             }
         }
         
