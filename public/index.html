@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>O Gran Camiño - Asistente IA 2025</title>
+    <title>O Gran Camiño 2025 - Asistente IA</title>
     <style>
         * {
             margin: 0;
@@ -13,149 +13,166 @@
         
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, #001f3f 0%, #003d7a 50%, #1e90ff 100%);
             min-height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 20px;
+            color: #1a1a1a;
         }
         
         /* ========== LOGIN SCREEN ========== */
         .login-screen {
-            width: 100%;
-            max-width: 450px;
-            background: white;
-            border-radius: 24px;
-            padding: 50px 40px;
-            box-shadow: 0 25px 50px rgba(0,0,0,0.15);
             display: flex;
-            flex-direction: column;
+            min-height: 100vh;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
         }
         
         .login-screen.hidden {
             display: none !important;
         }
         
-        .login-logo {
+        .login-container {
+            background: white;
+            border-radius: 24px;
+            padding: 60px 50px;
+            max-width: 500px;
+            width: 100%;
+            box-shadow: 0 30px 60px rgba(0,0,0,0.3);
+            animation: slideUp 0.5s ease;
+        }
+        
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .logo-section {
             text-align: center;
-            margin-bottom: 30px;
+            margin-bottom: 40px;
         }
         
-        .login-logo .icon {
-            font-size: 3.5rem;
-            margin-bottom: 15px;
+        .logo-section .logo-image {
+            width: 100%;
+            max-width: 280px;
+            height: auto;
+            margin-bottom: 25px;
+            display: block;
         }
         
-        .login-logo h1 {
-            font-size: 1.8rem;
-            color: #1a1a1a;
-            margin-bottom: 5px;
-            font-weight: 700;
+        .logo-section h1 {
+            font-size: 2.2rem;
+            background: linear-gradient(135deg, #001f3f 0%, #1e90ff 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            font-weight: 800;
+            margin-bottom: 10px;
         }
         
-        .login-logo p {
+        .logo-section p {
             color: #666;
-            font-size: 0.95rem;
+            font-size: 1rem;
         }
         
         .divider {
-            height: 1px;
-            background: #eee;
-            margin: 30px 0;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, #ddd, transparent);
+            margin: 35px 0;
         }
         
         .form-group {
-            margin-bottom: 20px;
+            margin-bottom: 25px;
         }
         
         .form-group label {
             display: block;
-            margin-bottom: 10px;
-            font-weight: 600;
-            color: #1a1a1a;
+            margin-bottom: 12px;
+            font-weight: 700;
+            color: #001f3f;
             font-size: 0.95rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
         }
         
-        .team-dropdown {
-            width: 100%;
-            padding: 12px 16px;
-            border: 1.5px solid #e5e7eb;
-            border-radius: 10px;
-            font-size: 1rem;
-            cursor: pointer;
-            background: white;
-            transition: all 0.2s;
-            max-height: 300px;
+        .teams-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 8px;
+            margin-bottom: 20px;
+            max-height: 350px;
             overflow-y: auto;
-        }
-        
-        .team-dropdown:hover {
-            border-color: #667eea;
-            background: #f9fafb;
-        }
-        
-        .team-dropdown:focus {
-            outline: none;
-            border-color: #667eea;
-            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+            border: 2px solid #e5e7eb;
+            border-radius: 12px;
+            padding: 8px;
         }
         
         .team-option {
-            padding: 12px 16px;
+            padding: 14px 16px;
+            background: #f9fafb;
+            border: 2px solid transparent;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-weight: 600;
             display: flex;
             align-items: center;
-            gap: 10px;
-            cursor: pointer;
+            gap: 12px;
         }
         
         .team-option:hover {
-            background: #f3f4f6;
+            background: white;
+            border-color: #1e90ff;
+            box-shadow: 0 4px 12px rgba(30, 144, 255, 0.15);
         }
         
-        .code-input {
-            margin-bottom: 25px;
+        .team-option.selected {
+            background: linear-gradient(135deg, #001f3f 0%, #1e90ff 100%);
+            color: white;
+            border-color: #1e90ff;
+        }
+        
+        .team-color {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            flex-shrink: 0;
         }
         
         .code-input input {
             width: 100%;
-            padding: 12px 16px;
-            border: 1.5px solid #e5e7eb;
+            padding: 14px 16px;
+            border: 2px solid #e5e7eb;
             border-radius: 10px;
             font-size: 1rem;
-            transition: all 0.2s;
-            letter-spacing: 1px;
             font-family: 'Courier New', monospace;
-        }
-        
-        .code-input input:hover {
-            border-color: #667eea;
-            background: #f9fafb;
+            letter-spacing: 2px;
+            transition: all 0.2s;
         }
         
         .code-input input:focus {
             outline: none;
-            border-color: #667eea;
-            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+            border-color: #1e90ff;
+            box-shadow: 0 0 0 4px rgba(30, 144, 255, 0.1);
         }
         
         .login-btn {
             width: 100%;
-            padding: 12px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 14px;
+            background: linear-gradient(135deg, #001f3f 0%, #1e90ff 100%);
             color: white;
             border: none;
             border-radius: 10px;
             font-size: 1rem;
-            font-weight: 600;
+            font-weight: 700;
             cursor: pointer;
             transition: all 0.3s;
             margin-bottom: 12px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
         }
         
         .login-btn:hover:not(:disabled) {
-            transform: translateY(-2px);
-            box-shadow: 0 12px 24px rgba(102, 126, 234, 0.4);
+            transform: translateY(-3px);
+            box-shadow: 0 15px 30px rgba(30, 144, 255, 0.3);
         }
         
         .login-btn:disabled {
@@ -165,51 +182,52 @@
         
         .public-btn {
             width: 100%;
-            padding: 12px;
+            padding: 14px;
             background: white;
-            color: #667eea;
-            border: 2px solid #667eea;
+            color: #1e90ff;
+            border: 2px solid #1e90ff;
             border-radius: 10px;
             font-size: 1rem;
-            font-weight: 600;
+            font-weight: 700;
             cursor: pointer;
             transition: all 0.3s;
+            text-transform: uppercase;
+            letter-spacing: 1px;
         }
         
         .public-btn:hover {
-            background: #f3f4f6;
+            background: #f0f8ff;
+            transform: translateY(-2px);
         }
         
         .error-message {
-            background: #fee;
-            border: 1px solid #fcc;
+            background: #ffe5e5;
+            border: 2px solid #ff6b6b;
             color: #c00;
-            padding: 12px 16px;
-            border-radius: 8px;
+            padding: 14px 16px;
+            border-radius: 10px;
             margin-bottom: 20px;
-            font-size: 0.9rem;
+            font-weight: 600;
             display: none;
+            animation: shake 0.3s ease;
         }
         
         .error-message.show {
             display: block;
-            animation: slideDown 0.3s ease;
         }
         
-        @keyframes slideDown {
-            from { transform: translateY(-10px); opacity: 0; }
-            to { transform: translateY(0); opacity: 1; }
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            75% { transform: translateX(5px); }
         }
         
         /* ========== APP SCREEN ========== */
         .app {
             display: none !important;
-            width: 100%;
             height: 100vh;
-            max-width: 1400px;
-            background: white;
-            border-radius: 0;
             flex-direction: column;
+            background: white;
         }
         
         .app.active {
@@ -217,48 +235,42 @@
         }
         
         .app-header {
-            background: white;
-            border-bottom: 1px solid #e5e7eb;
-            padding: 16px 24px;
+            background: linear-gradient(135deg, #001f3f 0%, #003d7a 100%);
+            color: white;
+            padding: 12px 24px;
             display: flex;
             justify-content: space-between;
             align-items: center;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
         }
         
-        .header-left {
-            display: flex;
-            align-items: center;
-            gap: 16px;
-        }
-        
-        .team-badge {
+        .header-brand {
             display: flex;
             align-items: center;
             gap: 12px;
-            padding: 8px 16px;
-            background: #f3f4f6;
-            border-radius: 10px;
         }
         
-        .team-badge-icon {
-            font-size: 1.5rem;
+        .header-logo {
+            height: 45px;
+            width: auto;
+            display: block;
         }
         
-        .team-badge-text h2 {
-            font-size: 1rem;
-            color: #1a1a1a;
-            font-weight: 600;
+        .header-brand-text h1 {
+            font-size: 1.1rem;
+            font-weight: 700;
         }
         
-        .team-badge-text p {
-            font-size: 0.8rem;
-            color: #666;
+        .header-brand-text p {
+            font-size: 0.75rem;
+            opacity: 0.9;
         }
         
         .logout-btn {
-            padding: 8px 16px;
-            background: white;
-            border: 1px solid #e5e7eb;
+            padding: 8px 20px;
+            background: rgba(255,255,255,0.1);
+            color: white;
+            border: 1px solid rgba(255,255,255,0.3);
             border-radius: 8px;
             cursor: pointer;
             font-weight: 600;
@@ -266,8 +278,7 @@
         }
         
         .logout-btn:hover {
-            border-color: #667eea;
-            color: #667eea;
+            background: rgba(255,255,255,0.2);
         }
         
         .main-content {
@@ -280,53 +291,48 @@
         
         /* ========== SIDEBAR ========== */
         .sidebar {
-            background: #f9fafb;
+            background: #f5f7fa;
             border-right: 1px solid #e5e7eb;
             padding: 20px;
             overflow-y: auto;
         }
         
         .sidebar h3 {
+            font-size: 0.9rem;
+            font-weight: 700;
+            color: #001f3f;
             margin-bottom: 15px;
-            color: #1a1a1a;
-            font-size: 0.95rem;
-            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
         }
         
         .files-list {
             display: flex;
             flex-direction: column;
-            gap: 8px;
+            gap: 10px;
         }
         
         .file-item {
             padding: 12px;
             background: white;
-            border-radius: 8px;
-            display: flex;
-            gap: 10px;
-            align-items: flex-start;
+            border-radius: 10px;
+            border: 1px solid #e5e7eb;
             cursor: pointer;
             transition: all 0.2s;
-            border: 1px solid #e5e7eb;
         }
         
         .file-item:hover {
-            border-color: #667eea;
-            box-shadow: 0 2px 8px rgba(102, 126, 234, 0.1);
+            border-color: #1e90ff;
+            box-shadow: 0 4px 12px rgba(30, 144, 255, 0.1);
         }
         
         .file-icon {
             font-size: 1.5rem;
-            flex-shrink: 0;
-        }
-        
-        .file-info {
-            flex: 1;
+            margin-bottom: 8px;
         }
         
         .file-name {
-            font-size: 0.9rem;
+            font-size: 0.85rem;
             font-weight: 600;
             color: #1a1a1a;
             white-space: nowrap;
@@ -335,7 +341,7 @@
         }
         
         .file-type {
-            font-size: 0.8rem;
+            font-size: 0.75rem;
             color: #999;
         }
         
@@ -371,18 +377,18 @@
         }
         
         .message-avatar {
-            font-size: 1.5rem;
-            width: 32px;
-            height: 32px;
+            width: 36px;
+            height: 36px;
             display: flex;
             align-items: center;
             justify-content: center;
+            font-size: 1.5rem;
             flex-shrink: 0;
+            border-radius: 50%;
         }
         
         .message.user .message-avatar {
             background: #e5e7eb;
-            border-radius: 50%;
         }
         
         .message-content {
@@ -390,25 +396,18 @@
             border-radius: 12px;
             max-width: 70%;
             word-wrap: break-word;
+            line-height: 1.5;
         }
         
         .message.user .message-content {
-            background: #667eea;
+            background: linear-gradient(135deg, #001f3f 0%, #1e90ff 100%);
             color: white;
         }
         
         .message.agent .message-content {
-            background: #f3f4f6;
+            background: #f0f8ff;
             color: #1a1a1a;
-        }
-        
-        .message.agent .message-content a {
-            color: #667eea;
-            text-decoration: none;
-        }
-        
-        .message.agent .message-content a:hover {
-            text-decoration: underline;
+            border: 1px solid #e5e7eb;
         }
         
         .typing-indicator {
@@ -416,14 +415,15 @@
             gap: 4px;
             align-items: center;
             padding: 12px 16px;
-            background: #f3f4f6;
+            background: #f0f8ff;
             border-radius: 12px;
+            border: 1px solid #e5e7eb;
         }
         
         .typing-dot {
             width: 8px;
             height: 8px;
-            background: #999;
+            background: #1e90ff;
             border-radius: 50%;
             animation: typing 1.4s infinite;
         }
@@ -432,7 +432,7 @@
         .typing-dot:nth-child(3) { animation-delay: 0.4s; }
         
         @keyframes typing {
-            0%, 60%, 100% { opacity: 0.5; }
+            0%, 60%, 100% { opacity: 0.4; }
             30% { opacity: 1; }
         }
         
@@ -441,30 +441,6 @@
             border-top: 1px solid #e5e7eb;
             padding: 20px 24px;
             background: white;
-        }
-        
-        .suggestions {
-            display: flex;
-            gap: 8px;
-            margin-bottom: 16px;
-            overflow-x: auto;
-            padding-bottom: 8px;
-        }
-        
-        .suggestion-btn {
-            padding: 8px 14px;
-            background: #f3f4f6;
-            border: 1px solid #e5e7eb;
-            border-radius: 20px;
-            cursor: pointer;
-            font-size: 0.9rem;
-            white-space: nowrap;
-            transition: all 0.2s;
-        }
-        
-        .suggestion-btn:hover {
-            border-color: #667eea;
-            background: #e5e7eb;
         }
         
         .input-group {
@@ -486,24 +462,27 @@
         
         .input-group textarea:focus {
             outline: none;
-            border-color: #667eea;
-            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+            border-color: #1e90ff;
+            box-shadow: 0 0 0 3px rgba(30, 144, 255, 0.1);
         }
         
         .input-group button {
-            padding: 12px 24px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 12px 28px;
+            background: linear-gradient(135deg, #001f3f 0%, #1e90ff 100%);
             color: white;
             border: none;
             border-radius: 10px;
             cursor: pointer;
-            font-weight: 600;
+            font-weight: 700;
             transition: all 0.2s;
+            text-transform: uppercase;
+            font-size: 0.85rem;
+            letter-spacing: 0.5px;
         }
         
         .input-group button:hover:not(:disabled) {
             transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+            box-shadow: 0 8px 20px rgba(30, 144, 255, 0.3);
         }
         
         .input-group button:disabled {
@@ -511,13 +490,29 @@
             cursor: not-allowed;
         }
         
-        .loading-text, .error-text {
+        .loading-text {
             color: #999;
             text-align: center;
             padding: 20px;
         }
         
-        .error-text { color: #c00; }
+        /* ========== SCROLLBAR ========== */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1;
+        }
+        
+        ::-webkit-scrollbar-thumb {
+            background: #1e90ff;
+            border-radius: 4px;
+        }
+        
+        ::-webkit-scrollbar-thumb:hover {
+            background: #1e5db8;
+        }
         
         /* ========== RESPONSIVO ========== */
         @media (max-width: 900px) {
@@ -535,12 +530,16 @@
         }
         
         @media (max-width: 600px) {
-            .login-screen {
+            .login-container {
                 padding: 40px 24px;
             }
             
-            .app-header {
-                flex-wrap: wrap;
+            .logo-section .logo-image {
+                max-width: 200px;
+            }
+            
+            .logo-section h1 {
+                font-size: 1.8rem;
             }
         }
     </style>
@@ -548,42 +547,40 @@
 <body>
     <!-- LOGIN SCREEN -->
     <div id="loginScreen" class="login-screen">
-        <div class="login-logo">
-            <div class="icon">🚴</div>
-            <h1>O Gran Camiño</h1>
-            <p>Asistente IA 2025</p>
+        <div class="login-container">
+            <div class="logo-section">
+                <img src="/logohistorical_version2023.png" alt="O Gran Camiño" class="logo-image">
+                <h1>Asistente IA</h1>
+                <p>2025</p>
+            </div>
+            
+            <div id="errorMessage" class="error-message"></div>
+            
+            <div class="divider"></div>
+            
+            <div class="form-group">
+                <label>Selecciona tu equipo:</label>
+                <div class="teams-grid" id="teamsGrid"></div>
+            </div>
+            
+            <div class="form-group code-input">
+                <label>Código de acceso:</label>
+                <input type="password" id="accessCode" placeholder="Ingresa el código" onkeypress="if(event.key==='Enter') handleLogin()">
+            </div>
+            
+            <button class="login-btn" onclick="handleLogin()">Entrar al Equipo</button>
+            <button class="public-btn" onclick="accessPublic()">Acceso Público →</button>
         </div>
-        
-        <div id="errorMessage" class="error-message"></div>
-        
-        <div class="divider"></div>
-        
-        <div class="form-group">
-            <label>Selecciona tu equipo:</label>
-            <select id="teamSelect" class="team-dropdown">
-                <option value="">-- Elige un equipo --</option>
-            </select>
-        </div>
-        
-        <div class="form-group code-input">
-            <label>Código de acceso:</label>
-            <input type="password" id="accessCode" placeholder="Ingresa el código" onkeypress="if(event.key==='Enter') handleLogin()">
-        </div>
-        
-        <button class="login-btn" onclick="handleLogin()">Entrar</button>
-        <button class="public-btn" onclick="accessPublic()">Acceso público →</button>
     </div>
     
     <!-- APP SCREEN -->
     <div id="app" class="app">
         <div class="app-header">
-            <div class="header-left">
-                <div class="team-badge">
-                    <div class="team-badge-icon" id="teamIcon">🚴</div>
-                    <div class="team-badge-text">
-                        <h2 id="teamName">O Gran Camiño</h2>
-                        <p id="teamSubtitle">Asistente IA</p>
-                    </div>
+            <div class="header-brand">
+                <img src="/logohistorical_version2023.png" alt="O Gran Camiño" class="header-logo">
+                <div class="header-brand-text">
+                    <h1 id="teamName">O Gran Camiño</h1>
+                    <p id="teamSubtitle">Asistente IA</p>
                 </div>
             </div>
             <button class="logout-btn" onclick="handleLogout()">Salir</button>
@@ -591,7 +588,7 @@
         
         <div class="main-content">
             <div class="sidebar">
-                <h3>📄 Archivos</h3>
+                <h3>📄 Recursos</h3>
                 <div id="filesList" class="files-list">
                     <div class="loading-text">Cargando...</div>
                 </div>
@@ -601,10 +598,8 @@
                 <div id="messages" class="messages"></div>
                 
                 <div class="chat-footer">
-                    <div class="suggestions" id="suggestions"></div>
-                    
                     <div class="input-group">
-                        <textarea id="messageInput" placeholder="Escribe tu pregunta..." onkeypress="handleChatKeyPress(event)"></textarea>
+                        <textarea id="messageInput" placeholder="¿Cuáles son mis hoteles? ¿Dónde es la etapa 2?..." onkeypress="handleChatKeyPress(event)"></textarea>
                         <button id="sendButton" onclick="sendMessage()">Enviar</button>
                     </div>
                 </div>
@@ -614,38 +609,48 @@
     
     <script>
         const TEAMS = [
-            { name: 'Premier Tech', icon: '🟣', code: 'PREMIER2025' },
-            { name: 'Movistar Team', icon: '🟠', code: 'MOVISTAR2025' },
-            { name: 'FdJ', icon: '🔵', code: 'FDJ2025' },
-            { name: 'Uno X', icon: '⚫', code: 'UNOX2025' },
-            { name: 'Soudal Quick Step', icon: '🟤', code: 'SOUDAL2025' },
-            { name: 'Polti', icon: '⚪', code: 'POLTI2025' },
-            { name: 'Bardiani', icon: '🔴', code: 'BARDIANI2025' },
-            { name: 'Kern', icon: '🟡', code: 'KERN2025' },
-            { name: 'Euskadi', icon: '🟢', code: 'EUSKADI2025' },
-            { name: 'Burgos', icon: '🔶', code: 'BURGOS2025' },
-            { name: 'Caja Rural', icon: '🟠', code: 'CAJARURAL2025' },
-            { name: 'Petrolike', icon: '🛢️', code: 'PETROLIKE2025' },
-            { name: 'Arabay', icon: '🏜️', code: 'ARABAY2025' },
-            { name: 'Sabgal', icon: '🇸🇾', code: 'SABGAL2025' },
-            { name: 'Efapel', icon: '📄', code: 'EFAPEL2025' },
-            { name: 'Mortagua', icon: '🏛️', code: 'MORTAGUA2025' },
-            { name: 'Boavista', icon: '⛵', code: 'BOAVISTA2025' },
-            { name: 'Tavira', icon: '🏰', code: 'TAVIRA2025' }
+            { name: 'Premier Tech', icon: '🟣', code: 'PREMIER2025', color: '#7C3AED' },
+            { name: 'Movistar Team', icon: '🟠', code: 'MOVISTAR2025', color: '#EA580C' },
+            { name: 'FdJ', icon: '🔵', code: 'FDJ2025', color: '#0369A1' },
+            { name: 'Uno X', icon: '⚫', code: 'UNOX2025', color: '#1F2937' },
+            { name: 'Soudal Quick Step', icon: '⚪', code: 'SOUDAL2025', color: '#F3F4F6' },
+            { name: 'Polti', icon: '🟣', code: 'POLTI2025', color: '#8B5CF6' },
+            { name: 'Bardiani', icon: '🔴', code: 'BARDIANI2025', color: '#DC2626' },
+            { name: 'Kern', icon: '🟦', code: 'KERN2025', color: '#3B82F6' },
+            { name: 'Euskadi', icon: '🔴', code: 'EUSKADI2025', color: '#EF4444' },
+            { name: 'Burgos', icon: '⚪', code: 'BURGOS2025', color: '#F5F5F5' },
+            { name: 'Caja Rural', icon: '💚', code: 'CAJARURAL2025', color: '#22C55E' },
+            { name: 'Petrolike', icon: '🟠', code: 'PETROLIKE2025', color: '#F97316' },
+            { name: 'Arabay', icon: '🌈', code: 'ARABAY2025', color: '#06B6D4' },
+            { name: 'Sabgal', icon: '✨', code: 'SABGAL2025', color: '#EC4899' },
+            { name: 'Efapel', icon: '🟢', code: 'EFAPEL2025', color: '#16A34A' },
+            { name: 'Mortagua', icon: '💙', code: 'MORTAGUA2025', color: '#2563EB' },
+            { name: 'Boavista', icon: '⚪', code: 'BOAVISTA2025', color: '#E5E7EB' },
+            { name: 'Tavira', icon: '🟠', code: 'TAVIRA2025', color: '#FB923C' }
         ];
         
         let currentSession = null;
+        let selectedTeam = null;
         
-        // Populate teams
         window.addEventListener('DOMContentLoaded', () => {
-            const select = document.getElementById('teamSelect');
-            TEAMS.forEach(team => {
-                const option = document.createElement('option');
-                option.value = team.code;
-                option.textContent = `${team.icon} ${team.name}`;
-                select.appendChild(option);
-            });
+            renderTeams();
         });
+        
+        function renderTeams() {
+            const grid = document.getElementById('teamsGrid');
+            grid.innerHTML = TEAMS.map(team => `
+                <div class="team-option" onclick="selectTeam(this, '${team.code}')">
+                    <div class="team-color" style="background: ${team.color};"></div>
+                    <span>${team.icon} ${team.name}</span>
+                </div>
+            `).join('');
+        }
+        
+        function selectTeam(el, code) {
+            document.querySelectorAll('.team-option').forEach(e => e.classList.remove('selected'));
+            el.classList.add('selected');
+            selectedTeam = code;
+        }
         
         function showError(msg) {
             const err = document.getElementById('errorMessage');
@@ -655,21 +660,19 @@
         }
         
         function handleLogin() {
-            const code = document.getElementById('accessCode').value;
-            const select = document.getElementById('teamSelect');
-            
-            if (!select.value) {
+            if (!selectedTeam) {
                 showError('❌ Selecciona un equipo');
                 return;
             }
             
+            const code = document.getElementById('accessCode').value;
             if (!code) {
                 showError('❌ Ingresa el código');
                 return;
             }
             
-            const team = TEAMS.find(t => t.code === select.value);
-            if (!team || code !== team.code) {
+            const team = TEAMS.find(t => t.code === selectedTeam);
+            if (code !== team.code) {
                 showError('❌ Código incorrecto');
                 return;
             }
@@ -678,29 +681,30 @@
         }
         
         function accessPublic() {
-            const team = { name: 'Acceso Público', icon: '🌍', code: 'public' };
+            const team = { name: 'Acceso Público', icon: '🌍', code: 'public', color: '#0EA5E9' };
             startSession(team);
         }
         
         function startSession(team) {
             currentSession = { team, history: [] };
             
-            document.getElementById('teamIcon').textContent = team.icon;
             document.getElementById('teamName').textContent = team.name;
             document.getElementById('loginScreen').classList.add('hidden');
             document.getElementById('app').classList.add('active');
             
-            addMessage(`¡Hola! 👋 Soy tu asistente de O Gran Camiño.<br><br>Puedo ayudarte con:<br>📍 Hoteles por etapa<br>🗺️ Rutas y tracks<br>📊 Datos de las etapas<br>📄 Descargas<br><br>¿Qué necesitas?`, 'agent');
+            addMessage(`¡Bienvenido ${team.name}! 🚴‍♂️<br><br>Soy tu asistente de O Gran Camiño 2025.<br><br>Puedo ayudarte con:<br>🏨 Hoteles por etapa<br>🗺️ Rutas y distancias<br>📅 Fechas de etapas<br>📊 Información de etapas<br><br>¿Qué necesitas?`, 'agent');
             
             loadFiles();
         }
         
         function handleLogout() {
             currentSession = null;
+            selectedTeam = null;
             document.getElementById('app').classList.remove('active');
             document.getElementById('loginScreen').classList.remove('hidden');
             document.getElementById('accessCode').value = '';
             document.getElementById('messages').innerHTML = '';
+            renderTeams();
         }
         
         async function loadFiles() {
@@ -713,21 +717,19 @@
                 
                 const files = data.files || [];
                 if (files.length === 0) {
-                    list.innerHTML = '<div class="loading-text">No hay archivos</div>';
+                    list.innerHTML = '<div class="loading-text">No hay recursos</div>';
                     return;
                 }
                 
                 list.innerHTML = files.map(f => `
                     <div class="file-item">
                         <div class="file-icon">${getFileIcon(f.type)}</div>
-                        <div class="file-info">
-                            <div class="file-name">${f.name}</div>
-                            <div class="file-type">${f.type}</div>
-                        </div>
+                        <div class="file-name">${f.name}</div>
+                        <div class="file-type">${f.type}</div>
                     </div>
                 `).join('');
             } catch (e) {
-                list.innerHTML = '<div class="error-text">⚠️ Error cargando</div>';
+                list.innerHTML = '<div class="loading-text">⚠️ Error</div>';
             }
         }
         
@@ -819,7 +821,6 @@
             if (t) t.remove();
         }
         
-        // Auto-resize textarea
         document.addEventListener('DOMContentLoaded', () => {
             const ta = document.getElementById('messageInput');
             ta.addEventListener('input', function() {
