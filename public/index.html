@@ -435,23 +435,11 @@
             flex-direction: column;
             gap: 16px;
             background: #fff;
+            scrollbar-width: none;
         }
         
         .messages::-webkit-scrollbar {
-            width: 8px;
-        }
-        
-        .messages::-webkit-scrollbar-track {
-            background: transparent;
-        }
-        
-        .messages::-webkit-scrollbar-thumb {
-            background: #DBDCE0;
-            border-radius: 4px;
-        }
-        
-        .messages::-webkit-scrollbar-thumb:hover {
-            background: #c5c7cc;
+            display: none;
         }
         
         .message {
