@@ -1,185 +1,831 @@
-import Anthropic from '@anthropic-ai/sdk';
-import { createClient } from '@supabase/supabase-js';
-
-const anthropic = new Anthropic({
-  apiKey: process.env.ANTHROPIC_API_KEY
-});
-
-const supabase = createClient(
-  process.env.SUPABASE_URL,
-  process.env.SUPABASE_ANON_KEY
-);
-
-const SYSTEM_PROMPT = `Eres el asistente inteligente de O Gran Camiño 2025.
-
-## REGLA CRÍTICA
-**NO INVENTES DATOS.** Solo usa exactamente lo que está en la base de datos.
-Si la información no está disponible, dilo claramente.
-
-## FORMATO DE RESPUESTAS
-
-SIEMPRE en HTML elegante:
-
-<h3>🏨 Hoteles O Gran Camiño 2025</h3>
-<table style="width:100%; border-collapse:collapse;">
-  <tr style="background:#667eea; color:white;">
-    <th style="padding:10px; text-align:left; border:1px solid #ddd;">Etapa</th>
-    <th style="padding:10px; text-align:left; border:1px solid #ddd;">Hotel</th>
-  </tr>
-  <tr>
-    <td style="padding:10px; border:1px solid #ddd;">Etapa 1</td>
-    <td style="padding:10px; border:1px solid #ddd;">Feel Viana</td>
-  </tr>
-</table>
-
-EMOJIS: 🚴 🗺️ 🏨 📍 ⚠️ 📅 🌤️ 🚗
-`;
-
-export default async function handler(req, res) {
-  res.setHeader('Access-Control-Allow-Origin', '*');
-  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
-  res.setHeader('Content-Type', 'application/json');
-  
-  if (req.method === 'OPTIONS') {
-    return res.status(200).end();
-  }
-  
-  try {
-    // GET /api/chat/files - Devuelve archivos disponibles desde Supabase Storage
-    if (req.method === 'GET' && req.url.includes('/files')) {
-      const { data, error } = await supabase
-        .from('documents')
-        .select('*');
-      
-      if (error) {
-        return res.status(500).json({ success: false, error: error.message });
-      }
-      
-      const files = (data || []).map(doc => ({
-        id: doc.id,
-        name: doc.name,
-        type: doc.doc_type,
-        storage_path: doc.storage_path
-      }));
-      
-      return res.status(200).json({ success: true, files });
-    }
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Agentes IA - O Gran Camiño 2025</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        
+        /* ========== LOGIN SCREEN ========== */
+        .login-screen {
+            max-width: 500px;
+            margin: 100px auto;
+            background: white;
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            display: block;
+        }
+        
+        .login-screen.hidden {
+            display: none;
+        }
+        
+        .login-screen h1 {
+            text-align: center;
+            margin-bottom: 10px;
+            color: #1e293b;
+            font-size: 2rem;
+        }
+        
+        .login-screen p {
+            text-align: center;
+            color: #64748b;
+            margin-bottom: 30px;
+        }
+        
+        .team-select {
+            margin-bottom: 20px;
+        }
+        
+        .team-select label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #1e293b;
+        }
+        
+        .team-select select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e5e7eb;
+            border-radius: 10px;
+            font-size: 1rem;
+            outline: none;
+            cursor: pointer;
+        }
+        
+        .team-select select:focus {
+            border-color: #667eea;
+        }
+        
+        .code-input {
+            margin-bottom: 20px;
+        }
+        
+        .code-input label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #1e293b;
+        }
+        
+        .code-input input {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e5e7eb;
+            border-radius: 10px;
+            font-size: 1rem;
+            outline: none;
+        }
+        
+        .code-input input:focus {
+            border-color: #667eea;
+        }
+        
+        .login-btn {
+            width: 100%;
+            padding: 14px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .login-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(102, 126, 234, 0.4);
+        }
+        
+        .login-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+        
+        .public-access {
+            text-align: center;
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 1px solid #e5e7eb;
+        }
+        
+        .public-access button {
+            background: none;
+            border: none;
+            color: #667eea;
+            text-decoration: none;
+            font-weight: 600;
+            cursor: pointer;
+            font-size: 1rem;
+        }
+        
+        .public-access button:hover {
+            text-decoration: underline;
+        }
+        
+        .error-message {
+            background: #fef2f2;
+            border: 1px solid #fecaca;
+            color: #991b1b;
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            font-size: 0.9rem;
+            display: none;
+        }
+        
+        .error-message.show {
+            display: block;
+        }
+        
+        /* ========== APP SCREEN ========== */
+        .app {
+            display: none;
+        }
+        
+        .app.active {
+            display: block;
+        }
+        
+        .app-header {
+            background: white;
+            padding: 20px;
+            border-radius: 16px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .app-header-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .team-avatar {
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+        }
+        
+        .app-header-text h1 {
+            font-size: 1.5rem;
+            color: #1e293b;
+        }
+        
+        .app-header-text p {
+            color: #64748b;
+            font-size: 0.9rem;
+        }
+        
+        .logout-btn {
+            padding: 10px 20px;
+            background: white;
+            border: 2px solid #e5e7eb;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-weight: 600;
+        }
+        
+        .logout-btn:hover {
+            border-color: #667eea;
+            color: #667eea;
+        }
+        
+        .main-content {
+            display: grid;
+            grid-template-columns: 300px 1fr;
+            gap: 20px;
+        }
+        
+        /* ========== SIDEBAR ========== */
+        .sidebar {
+            background: white;
+            border-radius: 16px;
+            padding: 20px;
+            height: fit-content;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        .sidebar h3 {
+            margin-bottom: 15px;
+            color: #1e293b;
+            font-size: 1.1rem;
+        }
+        
+        .files-list {
+            max-height: 600px;
+            overflow-y: auto;
+        }
+        
+        .file-item {
+            padding: 12px;
+            margin-bottom: 8px;
+            background: #f8fafc;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .file-item:hover {
+            background: #eff6ff;
+            transform: translateX(4px);
+        }
+        
+        .file-icon {
+            font-size: 1.5rem;
+            min-width: 30px;
+        }
+        
+        .file-info {
+            flex: 1;
+            min-width: 0;
+        }
+        
+        .file-name {
+            font-weight: 600;
+            color: #1e293b;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            font-size: 0.9rem;
+        }
+        
+        .file-type {
+            font-size: 0.8rem;
+            color: #94a3b8;
+        }
+        
+        .loading-text {
+            color: #94a3b8;
+            text-align: center;
+            padding: 20px;
+            font-size: 0.9rem;
+        }
+        
+        .error-text {
+            color: #dc2626;
+            text-align: center;
+            padding: 20px;
+            font-size: 0.9rem;
+        }
+        
+        /* ========== CHAT CONTAINER ========== */
+        .chat-container {
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            display: flex;
+            flex-direction: column;
+            height: 700px;
+        }
+        
+        .chat-header {
+            padding: 20px;
+            border-bottom: 1px solid #e5e7eb;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-radius: 16px 16px 0 0;
+        }
+        
+        .chat-header h2 {
+            font-size: 1.2rem;
+        }
+        
+        .messages {
+            flex: 1;
+            overflow-y: auto;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        
+        .message {
+            display: flex;
+            gap: 10px;
+            animation: fadeIn 0.3s ease-in;
+        }
+        
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .message.user {
+            justify-content: flex-end;
+        }
+        
+        .message-avatar {
+            font-size: 1.5rem;
+            min-width: 40px;
+            display: flex;
+            align-items: flex-end;
+        }
+        
+        .message.user .message-avatar {
+            order: 2;
+        }
+        
+        .message-content {
+            max-width: 60%;
+            padding: 12px 16px;
+            border-radius: 12px;
+            word-wrap: break-word;
+            line-height: 1.5;
+        }
+        
+        .message.agent .message-content {
+            background: #f1f5f9;
+            color: #1e293b;
+        }
+        
+        .message.user .message-content {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        
+        .message-content a {
+            color: inherit;
+            text-decoration: underline;
+            font-weight: 600;
+        }
+        
+        .message.user .message-content a {
+            color: #fff;
+        }
+        
+        .typing-indicator {
+            display: flex;
+            gap: 4px;
+            align-items: flex-end;
+        }
+        
+        .typing-dot {
+            width: 8px;
+            height: 8px;
+            background: #94a3b8;
+            border-radius: 50%;
+            animation: typing 1.4s infinite;
+        }
+        
+        .typing-dot:nth-child(2) {
+            animation-delay: 0.2s;
+        }
+        
+        .typing-dot:nth-child(3) {
+            animation-delay: 0.4s;
+        }
+        
+        @keyframes typing {
+            0%, 60%, 100% { transform: translateY(0); }
+            30% { transform: translateY(-10px); }
+        }
+        
+        .suggestions {
+            padding: 15px 20px;
+            border-bottom: 1px solid #e5e7eb;
+            display: flex;
+            gap: 10px;
+            overflow-x: auto;
+        }
+        
+        .suggestion-btn {
+            padding: 8px 12px;
+            background: #f1f5f9;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            cursor: pointer;
+            white-space: nowrap;
+            font-size: 0.9rem;
+            transition: all 0.2s;
+        }
+        
+        .suggestion-btn:hover {
+            background: #e0e7ff;
+            border-color: #667eea;
+        }
+        
+        .chat-footer {
+            padding: 20px;
+            border-top: 1px solid #e5e7eb;
+            display: flex;
+            gap: 10px;
+        }
+        
+        .chat-footer textarea {
+            flex: 1;
+            padding: 12px;
+            border: 2px solid #e5e7eb;
+            border-radius: 10px;
+            font-size: 1rem;
+            font-family: inherit;
+            resize: none;
+            outline: none;
+            min-height: 50px;
+            max-height: 120px;
+        }
+        
+        .chat-footer textarea:focus {
+            border-color: #667eea;
+        }
+        
+        .chat-footer button {
+            padding: 12px 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.2s;
+            white-space: nowrap;
+        }
+        
+        .chat-footer button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(102, 126, 234, 0.4);
+        }
+        
+        .chat-footer button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+        
+        /* ========== RESPONSIVE ========== */
+        @media (max-width: 768px) {
+            .main-content {
+                grid-template-columns: 1fr;
+            }
+            
+            .chat-container {
+                height: 500px;
+            }
+            
+            .message-content {
+                max-width: 85%;
+            }
+            
+            .login-screen {
+                margin: 50px auto;
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- LOGIN SCREEN -->
+        <div id="loginScreen" class="login-screen">
+            <h1>🚴 O Gran Camiño</h1>
+            <p>Agentes IA 2025</p>
+            
+            <div id="errorMessage" class="error-message"></div>
+            
+            <div class="team-select">
+                <label>Selecciona tu equipo:</label>
+                <select id="teamSelect">
+                    <option value="">-- Elige un equipo --</option>
+                    <option value="movistar">🟠 Movistar Team</option>
+                    <option value="ineos">🔵 Ineos Grenadiers</option>
+                    <option value="jumbo">🟡 Jumbo Visma</option>
+                    <option value="uae">🔴 UAE Emirates</option>
+                </select>
+            </div>
+            
+            <div class="code-input">
+                <label>Código de acceso:</label>
+                <input type="password" id="accessCode" placeholder="Ingresa el código">
+            </div>
+            
+            <button class="login-btn" onclick="handleLogin()">Entrar</button>
+            
+            <div class="public-access">
+                <button onclick="accessPublic()">Acceso público →</button>
+            </div>
+        </div>
+        
+        <!-- APP -->
+        <div id="app" class="app">
+            <div class="app-header">
+                <div class="app-header-info">
+                    <div class="team-avatar" id="teamIcon">🌍</div>
+                    <div class="app-header-text">
+                        <h1 id="teamName">O Gran Camiño</h1>
+                        <p id="teamSubtitle">Agentes IA 2025</p>
+                    </div>
+                </div>
+                <button class="logout-btn" onclick="handleLogout()">Salir</button>
+            </div>
+            
+            <div class="main-content">
+                <!-- SIDEBAR -->
+                <div class="sidebar">
+                    <h3>📁 Archivos</h3>
+                    <div class="files-list" id="filesList">
+                        <div class="loading-text">Cargando archivos...</div>
+                    </div>
+                </div>
+                
+                <!-- CHAT -->
+                <div class="chat-container">
+                    <div class="chat-header">
+                        <h2>💬 Asistente O Gran Camiño</h2>
+                    </div>
+                    
+                    <div class="messages" id="messages"></div>
+                    
+                    <div class="suggestions">
+                        <button class="suggestion-btn" onclick="sendSuggestion('¿Qué archivos tengo?')">📁 Archivos</button>
+                        <button class="suggestion-btn" onclick="sendSuggestion('¿Dónde es el PPO?')">📍 PPO</button>
+                        <button class="suggestion-btn" onclick="sendSuggestion('Información general')">ℹ️ Info</button>
+                    </div>
+                    
+                    <div class="chat-footer">
+                        <textarea id="messageInput" placeholder="Escribe tu pregunta..." onkeypress="handleChatKeyPress(event)"></textarea>
+                        <button id="sendButton" onclick="sendMessage()">Enviar</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
     
-    // POST /api/chat - Chat con contexto de Supabase
-    if (req.method === 'POST') {
-      const { message, team, history = [] } = req.body;
-      
-      if (!message) {
-        return res.status(400).json({ success: false, error: 'Mensaje requerido' });
-      }
-      
-      // Obtener team_id
-      const { data: teamData } = await supabase
-        .from('teams')
-        .select('id')
-        .eq('code', team === 'public' ? 'MOVISTAR2025' : `${team.toUpperCase()}2025`)
-        .single();
-      
-      const teamId = teamData?.id || 1;
-      
-      // Construir contexto desde Supabase
-      let context = '\n## DATOS DE O GRAN CAMIÑO 2025:\n\n';
-      
-      // Hotels para este equipo
-      const { data: hotels } = await supabase
-        .from('hotels')
-        .select(`
-          stage_id,
-          hotel_name,
-          city,
-          address,
-          stages(stage_number, date, start_location, finish_location, distance_km)
-        `)
-        .eq('team_id', teamId);
-      
-      if (hotels && hotels.length > 0) {
-        context += '### HOTELES POR ETAPA:\n';
-        hotels.forEach(h => {
-          context += `- Etapa ${h.stages.stage_number}: ${h.hotel_name}, ${h.city}\n`;
+    <script>
+        const TEAM_CONFIG = {
+            movistar: { name: 'Movistar Team', icon: '🟠', code: 'MOVISTAR2025' },
+            ineos: { name: 'Ineos Grenadiers', icon: '🔵', code: 'INEOS2025' },
+            jumbo: { name: 'Jumbo Visma', icon: '🟡', code: 'JUMBO2025' },
+            uae: { name: 'UAE Emirates', icon: '🔴', code: 'UAE2025' },
+            public: { name: 'Acceso Público', icon: '🌍', code: null }
+        };
+        
+        let currentSession = null;
+        
+        function showError(message) {
+            const errorDiv = document.getElementById('errorMessage');
+            errorDiv.textContent = message;
+            errorDiv.classList.add('show');
+            setTimeout(() => {
+                errorDiv.classList.remove('show');
+            }, 5000);
+        }
+        
+        function handleLogin() {
+            const team = document.getElementById('teamSelect').value;
+            const code = document.getElementById('accessCode').value;
+            
+            if (!team) {
+                showError('❌ Selecciona un equipo');
+                return;
+            }
+            
+            if (!code) {
+                showError('❌ Ingresa el código de acceso');
+                return;
+            }
+            
+            const config = TEAM_CONFIG[team];
+            if (code !== config.code) {
+                showError('❌ Código incorrecto');
+                return;
+            }
+            
+            startSession(team);
+        }
+        
+        function accessPublic() {
+            startSession('public');
+        }
+        
+        function startSession(team) {
+            currentSession = { team: team, history: [] };
+            
+            const config = TEAM_CONFIG[team];
+            document.getElementById('teamIcon').textContent = config.icon;
+            document.getElementById('teamName').textContent = config.name;
+            document.getElementById('teamSubtitle').textContent = 'Agentes IA 2025';
+            
+            document.getElementById('loginScreen').classList.add('hidden');
+            document.getElementById('app').classList.add('active');
+            
+            addMessage(
+                `¡Hola ${config.name}! 👋<br><br>
+                Soy tu asistente inteligente de O Gran Camiño.<br>
+                Puedo ayudarte con:<br>
+                • 📁 Información de tus archivos<br>
+                • 🗺️ Rutas y tracks<br>
+                • 📊 Datos y horarios<br>
+                • 🔗 Enlaces a Google Maps<br><br>
+                ¿En qué puedo ayudarte?`,
+                'agent'
+            );
+            
+            loadFiles();
+        }
+        
+        function handleLogout() {
+            currentSession = null;
+            document.getElementById('app').classList.remove('active');
+            document.getElementById('loginScreen').classList.remove('hidden');
+            document.getElementById('accessCode').value = '';
+            document.getElementById('messages').innerHTML = '';
+            document.getElementById('filesList').innerHTML = '<div class="loading-text">Cargando archivos...</div>';
+        }
+        
+        async function loadFiles() {
+            const filesList = document.getElementById('filesList');
+            filesList.innerHTML = '<div class="loading-text">Cargando desde Drive...</div>';
+            
+            try {
+                const response = await fetch('/api/chat/files');
+                const data = await response.json();
+                
+                if (!response.ok) {
+                    throw new Error(data.error || 'Error al cargar archivos');
+                }
+                
+                const files = data.files || [];
+                
+                if (files.length === 0) {
+                    filesList.innerHTML = '<div class="loading-text">No hay archivos disponibles</div>';
+                    return;
+                }
+                
+                filesList.innerHTML = files.slice(0, 20).map(file => `
+                    <div class="file-item">
+                        <div class="file-icon">${getFileIcon(file.type)}</div>
+                        <div class="file-info">
+                            <div class="file-name">${file.name}</div>
+                            <div class="file-type">${file.type}</div>
+                        </div>
+                    </div>
+                `).join('');
+                
+            } catch (error) {
+                console.error('Error loading files:', error);
+                filesList.innerHTML = '<div class="error-text">⚠️ Error al cargar archivos</div>';
+            }
+        }
+        
+        function getFileIcon(type) {
+            const icons = {
+                'excel': '📊',
+                'pdf': '📄',
+                'gpx': '🗺️',
+                'doc': '📝',
+                'file': '📎'
+            };
+            return icons[type] || '📎';
+        }
+        
+        function handleChatKeyPress(event) {
+            if (event.key === 'Enter' && !event.shiftKey) {
+                event.preventDefault();
+                sendMessage();
+            }
+        }
+        
+        function sendSuggestion(text) {
+            document.getElementById('messageInput').value = text;
+            sendMessage();
+        }
+        
+        async function sendMessage() {
+            const input = document.getElementById('messageInput');
+            const sendButton = document.getElementById('sendButton');
+            const message = input.value.trim();
+            
+            if (!message) return;
+            
+            input.value = '';
+            input.disabled = true;
+            sendButton.disabled = true;
+            
+            addMessage(message, 'user');
+            showTyping();
+            
+            try {
+                const response = await fetch('/api/chat', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        message: message,
+                        team: currentSession.team,
+                        history: currentSession.history
+                    })
+                });
+                
+                const data = await response.json();
+                
+                if (!response.ok) {
+                    throw new Error(data.error || 'Error del servidor');
+                }
+                
+                hideTyping();
+                addMessage(data.response, 'agent');
+                
+                currentSession.history.push({ role: 'user', content: message });
+                currentSession.history.push({ role: 'assistant', content: data.response });
+                
+            } catch (error) {
+                hideTyping();
+                addMessage('❌ Error: ' + error.message, 'agent');
+                console.error('Error:', error);
+            } finally {
+                input.disabled = false;
+                sendButton.disabled = false;
+                input.focus();
+            }
+        }
+        
+        function addMessage(text, sender) {
+            const messagesDiv = document.getElementById('messages');
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${sender}`;
+            
+            const avatar = sender === 'user' ? '👤' : TEAM_CONFIG[currentSession.team].icon;
+            
+            messageDiv.innerHTML = `
+                <div class="message-avatar">${avatar}</div>
+                <div class="message-content">${text}</div>
+            `;
+            
+            messagesDiv.appendChild(messageDiv);
+            messagesDiv.scrollTop = messagesDiv.scrollHeight;
+        }
+        
+        function showTyping() {
+            const messagesDiv = document.getElementById('messages');
+            const typingDiv = document.createElement('div');
+            typingDiv.className = 'message agent';
+            typingDiv.id = 'typing-indicator';
+            
+            typingDiv.innerHTML = `
+                <div class="message-avatar">${TEAM_CONFIG[currentSession.team].icon}</div>
+                <div class="typing-indicator">
+                    <div class="typing-dot"></div>
+                    <div class="typing-dot"></div>
+                    <div class="typing-dot"></div>
+                </div>
+            `;
+            
+            messagesDiv.appendChild(typingDiv);
+            messagesDiv.scrollTop = messagesDiv.scrollHeight;
+        }
+        
+        function hideTyping() {
+            const typing = document.getElementById('typing-indicator');
+            if (typing) typing.remove();
+        }
+        
+        // Auto-resize textarea
+        document.addEventListener('DOMContentLoaded', function() {
+            const textarea = document.getElementById('messageInput');
+            if (textarea) {
+                textarea.addEventListener('input', function() {
+                    this.style.height = 'auto';
+                    this.style.height = Math.min(this.scrollHeight, 120) + 'px';
+                });
+            }
         });
-      }
-      
-      // Stages
-      const { data: stages } = await supabase
-        .from('stages')
-        .select('*')
-        .order('stage_number');
-      
-      if (stages && stages.length > 0) {
-        context += '\n### ETAPAS:\n';
-        stages.forEach(s => {
-          context += `- Etapa ${s.stage_number} (${s.date}): ${s.start_location} → ${s.finish_location} (${s.distance_km}km)\n`;
-        });
-      }
-      
-      // Incidents
-      const { data: incidents } = await supabase
-        .from('incidents')
-        .select('*, stages(stage_number, date)')
-        .order('created_at', { ascending: false })
-        .limit(10);
-      
-      if (incidents && incidents.length > 0) {
-        context += '\n### INCIDENCIAS RECIENTES:\n';
-        incidents.forEach(i => {
-          context += `- Etapa ${i.stages.stage_number}: ${i.description}\n`;
-        });
-      }
-      
-      // Documents
-      const { data: documents } = await supabase
-        .from('documents')
-        .select('*');
-      
-      if (documents && documents.length > 0) {
-        context += '\n### DOCUMENTOS DISPONIBLES (Descargas):\n';
-        documents.forEach(d => {
-          const downloadUrl = `${process.env.SUPABASE_URL}/storage/v1/object/public/race-files${d.storage_path}`;
-          context += `- 📄 ${d.name}: ${downloadUrl}\n`;
-        });
-      }
-      
-      const fullPrompt = SYSTEM_PROMPT + context;
-      
-      console.log('Sending to Claude:', {
-        messageLength: message.length,
-        contextLength: context.length,
-        team: team
-      });
-      
-      // Llamar a Claude
-      const response = await anthropic.messages.create({
-        model: 'claude-sonnet-4-5-20250929',
-        max_tokens: 2048,
-        system: fullPrompt,
-        messages: [
-          ...history.slice(-6),
-          { role: 'user', content: message }
-        ]
-      });
-      
-      const responseText = response.content[0].text;
-      
-      return res.status(200).json({
-        success: true,
-        response: responseText,
-        tokensUsed: response.usage
-      });
-    }
-    
-    return res.status(405).json({ success: false, error: 'Método no permitido' });
-    
-  } catch (error) {
-    console.error('Error:', error);
-    return res.status(500).json({ 
-      success: false, 
-      error: error.message
-    });
-  }
-}
+    </script>
+</body>
+</html>
