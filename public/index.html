@@ -52,6 +52,7 @@
         .theme-slider-login {
             cursor: pointer;
             margin: 0 8px;
+            display: none !important;
         }
         
         /* SLIDER TOGGLE EN CHAT */
@@ -1774,9 +1775,9 @@
         
         document.addEventListener('DOMContentLoaded', () => {
             // ========== DARK MODE INITIALIZATION ==========
-            const savedTheme = localStorage.getItem('theme') || 'light';
-            document.documentElement.setAttribute('data-theme', savedTheme);
-            updateThemeIcon(savedTheme);
+            // Siempre iniciar en light mode por defecto
+            document.documentElement.setAttribute('data-theme', 'light');
+            updateThemeIcon('light');
             // Textarea height fixed, no auto-grow
         });
         
