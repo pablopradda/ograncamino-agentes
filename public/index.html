@@ -519,6 +519,7 @@
         
         :root[data-theme="dark"] .chat-area {
             background: transparent;
+            border-right: none;
         }
         
         :root[data-theme="dark"] .app-header {
@@ -832,6 +833,7 @@
             height: 100%;
             overflow: hidden;
             width: 100%;
+            border-right: 1px solid #F2F2F2;
         }
         
         .messages {
@@ -1179,6 +1181,10 @@
         
         /* ========== RESPONSIVO ========== */
         @media (max-width: 900px) {
+            .app.active {
+                grid-template-columns: 1fr;
+            }
+            
             .main-content {
                 grid-template-columns: 1fr;
             }
