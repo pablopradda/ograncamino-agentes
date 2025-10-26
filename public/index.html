@@ -1478,8 +1478,57 @@
         }
         
         function askAbout(topic) {
-            document.getElementById('messageInput').value = topic;
-            sendMessage();
+            const PDF_URLS = {
+                'road book': 'https://nalikmbbscebdoldwmki.supabase.co/storage/v1/object/public/race-files/PDFS/Libro_de-ruta-25.pdf',
+                'media book': 'https://nalikmbbscebdoldwmki.supabase.co/storage/v1/object/public/race-files/PDFS/mediabook.pdf',
+                'reglamento': 'https://nalikmbbscebdoldwmki.supabase.co/storage/v1/object/public/race-files/PDFS/reglamento.pdf'
+            };
+            
+            // Buscar si es un PDF
+            let pdfUrl = null;
+            for (const [key, url] of Object.entries(PDF_URLS)) {
+                if (topic.toLowerCase().includes(key)) {
+                    pdfUrl = url;
+                    break;
+                }
+            }
+            
+            // Si es PDF, abrir con Google Docs Viewer
+            if (pdfUrl) {
+                const viewerUrl = `https://docs.google.com/gview?url=${encodeURIComponent(pdfUrl)}&embedded=true`;
+                window.open(viewerUrl, '_blank', 'width=1200,height=800');
+                return;
+            }
+            
+            // Si no es PDF, hacer fetch al backend
+            addMessage(topic, 'user');
+            showTyping();
+            
+            fetch('/api/chat', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    message: topic,
+                    team: currentSession.team.code,
+                    history: currentSession.history
+                })
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.success) {
+                    hideTyping();
+                    addMessage(data.response, 'agent');
+                    currentSession.history.push({ role: 'user', content: topic });
+                    currentSession.history.push({ role: 'assistant', content: data.response });
+                } else {
+                    hideTyping();
+                    addMessage('Error: ' + data.error, 'agent');
+                }
+            })
+            .catch(error => {
+                hideTyping();
+                addMessage('Error al conectar con el servidor: ' + error.message, 'agent');
+            });
         }
         
         function getFileIcon(type) {
