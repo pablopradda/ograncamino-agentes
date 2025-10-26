@@ -1167,14 +1167,31 @@
         :root[data-theme="dark"] table {
             color: #1a1a1a;
             border-collapse: collapse;
+            width: 100%;
+            background: white;
         }
         
         :root[data-theme="dark"] table thead th {
             color: #ffffff;
+            background: #4a5ed9;
         }
         
         :root[data-theme="dark"] table tbody td {
             color: #1a1a1a;
+            background: white !important;
+            border: 1px solid #e5e7eb;
+        }
+        
+        :root[data-theme="dark"] table tbody tr {
+            background: white !important;
+        }
+        
+        :root[data-theme="dark"] table tbody tr:nth-child(odd) {
+            background: white !important;
+        }
+        
+        :root[data-theme="dark"] table tbody tr:nth-child(even) {
+            background: white !important;
         }
         
         .typing-indicator {
