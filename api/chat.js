@@ -164,7 +164,7 @@ export default async function handler(req, res) {
         });
       }
       
-      // Documents
+      // Documents - CON URLs CORRECTAS HARDCODEADAS
       const { data: documents, error: docsError } = await supabase
         .from('documents')
         .select('*');
@@ -173,9 +173,18 @@ export default async function handler(req, res) {
         console.error('Error fetching documents:', docsError);
       } else if (documents && documents.length > 0) {
         context += '\n### 📄 DOCUMENTOS DISPONIBLES:\n';
+        
+        // URLs hardcodeadas correctas para los PDFs
+        const PDF_URLS = {
+          'Roadbook': 'https://nalikmbbscebdoldwmki.supabase.co/storage/v1/object/public/race-files/PDFS/Libro_de-ruta-25.pdf',
+          'Media Book': 'https://nalikmbbscebdoldwmki.supabase.co/storage/v1/object/public/race-files/PDFS/mediabook.pdf',
+          'Regulations': 'https://nalikmbbscebdoldwmki.supabase.co/storage/v1/object/public/race-files/PDFS/reglamento.pdf'
+        };
+        
         documents.forEach(d => {
-          const downloadUrl = `${process.env.SUPABASE_URL}/storage/v1/object/public/race-files${d.storage_path}`;
-          context += `- ${d.name}: ${downloadUrl}\n`;
+          // Usar URL hardcodeada si existe, si no usar storage_path
+          const correctUrl = PDF_URLS[d.name] || `${process.env.SUPABASE_URL}/storage/v1/object/public/race-files${d.storage_path}`;
+          context += `- ${d.name}: ${correctUrl}\n`;
         });
       }
       
