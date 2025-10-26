@@ -949,8 +949,8 @@
                 send: 'Enviar',
                 logout: 'Salir',
                 noResources: 'No hay recursos',
-                welcome: (team) => `¡Bienvenido ${team}!<br><br>Soy tu Team Coach de O Gran Camiño 2025.<br><br><strong>Puedo ayudarte con:</strong><br>🏨 Hoteles por etapa<br>🗺️ Rutas y distancias<br>📅 Fechas de etapas<br>📊 Información de etapas<br><br>¿Qué necesitas?`,
-                welcomePublic: (team) => `¡Bienvenido ${team}!<br><br>Soy tu Team Coach de O Gran Camiño 2025.<br><br><strong>Puedo ayudarte con:</strong><br>🗺️ Rutas y distancias<br>📅 Fechas de etapas<br>📊 Información de etapas<br><br>¿Qué necesitas?`,
+                welcome: (team) => `¡Bienvenido ${team}!<br><br>Soy tu Team Coach de O Gran Camiño 2025.<br><br>Puedo ayudarte con:<br>🏨 Hoteles por etapa<br>🗺️ Rutas y distancias<br>📅 Fechas de etapas<br>📊 Información de etapas<br><br>¿Qué necesitas?`,
+                welcomePublic: (team) => `¡Bienvenido ${team}!<br><br>Soy tu Team Coach de O Gran Camiño 2025.<br><br>Puedo ayudarte con:<br>🗺️ Rutas y distancias<br>📅 Fechas de etapas<br>📊 Información de etapas<br><br>¿Qué necesitas?`,
                 error: (msg) => `❌ Error: ${msg}`,
                 publicAccess: 'Acceso Público',
                 // Chips públicos
@@ -1179,6 +1179,21 @@
             
             document.getElementById('teamsSelect').options[0].textContent = t('chooseTeam');
             
+            // Actualizar mensaje de bienvenida si existe
+            const welcomeMsg = document.getElementById('welcomeMessage');
+            if (welcomeMsg && currentSession) {
+                let newWelcomeText;
+                if (currentSession.team.code === 'public') {
+                    newWelcomeText = t('welcomePublic', currentSession.team.name);
+                } else {
+                    newWelcomeText = t('welcome', currentSession.team.name);
+                }
+                const contentDiv = welcomeMsg.querySelector('.message-content');
+                if (contentDiv) {
+                    contentDiv.innerHTML = newWelcomeText;
+                }
+            }
+            
             // Actualizar los chips si existen
             const quickAccess = document.getElementById('quickAccess');
             if (quickAccess) {
@@ -1306,7 +1321,7 @@
             } else {
                 welcomeMsg = t('welcome', team.name);
             }
-            addMessage(welcomeMsg, 'agent');
+            addMessage(welcomeMsg, 'agent', 'welcomeMessage');
             
             // Agregar botones de acceso rápido
             showQuickAccess(team.code === 'public');
@@ -1520,9 +1535,12 @@
             }
         }
         
-        function addMessage(text, sender) {
+        function addMessage(text, sender, messageId = null) {
             const div = document.createElement('div');
             div.className = `message ${sender}`;
+            if (messageId) {
+                div.id = messageId;
+            }
             
             const avatar = sender === 'user' ? '👤' : '🚴‍♂️';
             div.innerHTML = `
