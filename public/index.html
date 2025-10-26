@@ -952,12 +952,41 @@
             renderTeams();
             updateLanguageButtons();
             setupLanguageButtons();
+            
+            // Auto-login si hay sesión guardada
+            tryAutoLogin();
         });
         
         function setupLanguageButtons() {
             document.querySelectorAll('[data-lang]').forEach(btn => {
                 btn.addEventListener('click', () => setLanguage(btn.dataset.lang));
             });
+        }
+        
+        function tryAutoLogin() {
+            const savedTeamCode = localStorage.getItem('savedTeam');
+            const savedCode = localStorage.getItem('savedCode');
+            
+            if (savedTeamCode && savedCode) {
+                // Caso especial: Acceso público
+                if (savedTeamCode === 'public' && savedCode === 'public') {
+                    const team = { name: t('publicAccess'), code: 'public', color: '#0EA5E9' };
+                    startSession(team);
+                    return;
+                }
+                
+                // Equipos regulares
+                const team = TEAMS.find(t => t.code === savedTeamCode);
+                
+                // Verificar que el código sigue siendo válido
+                if (team && savedCode === team.code) {
+                    startSession(team);
+                } else {
+                    // Limpiar si el código ya no es válido
+                    localStorage.removeItem('savedTeam');
+                    localStorage.removeItem('savedCode');
+                }
+            }
         }
         
         function setLanguage(lang) {
@@ -1035,11 +1064,20 @@
                 return;
             }
             
+            // Guardar sesión en localStorage
+            localStorage.setItem('savedTeam', team.code);
+            localStorage.setItem('savedCode', code);
+            
             startSession(team);
         }
         
         function accessPublic() {
             const team = { name: t('publicAccess'), code: 'public', color: '#0EA5E9' };
+            
+            // Guardar sesión pública
+            localStorage.setItem('savedTeam', 'public');
+            localStorage.setItem('savedCode', 'public');
+            
             startSession(team);
         }
         
@@ -1063,6 +1101,10 @@
         }
         
         function handleLogout() {
+            // Limpiar sesión guardada
+            localStorage.removeItem('savedTeam');
+            localStorage.removeItem('savedCode');
+            
             currentSession = null;
             selectedTeam = null;
             document.getElementById('app').classList.remove('active');
