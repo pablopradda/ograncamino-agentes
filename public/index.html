@@ -1493,10 +1493,10 @@
                 }
             }
             
-            // Si es PDF, abrir con Google Docs Viewer
+            // Si es PDF, abrir con Google Docs Viewer en nueva pestaña
             if (pdfUrl) {
                 const viewerUrl = `https://docs.google.com/gview?url=${encodeURIComponent(pdfUrl)}&embedded=true`;
-                window.open(viewerUrl, '_blank', 'width=1200,height=800');
+                window.open(viewerUrl, '_blank');
                 return;
             }
             
