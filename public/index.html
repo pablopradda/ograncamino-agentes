@@ -471,10 +471,6 @@
             z-index: 50;
         }
         
-        :root[data-theme="dark"] .app-header {
-            background: #181818;
-            color: white;
-        }
         
         :root[data-theme="dark"] .sidebar {
             background: #181818;
@@ -482,13 +478,12 @@
         
         :root[data-theme="dark"] .file-item {
             background: #242424;
-            border: none;
+            border: 1px solid var(--border-color);
         }
         
         :root[data-theme="dark"] .file-item:hover {
-            background: #2a2a2a;
-            border: none;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+            background: #303030;
+            border: 1px solid var(--border-color);
         }
         
         :root[data-theme="dark"] .resource-item {
@@ -498,9 +493,8 @@
         }
         
         :root[data-theme="dark"] .resource-item:hover {
-            background: #2a2a2a;
+            background: #303030;
             border: none;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.3);
         }
         
         :root[data-theme="dark"] .resource-name {
@@ -512,11 +506,11 @@
         }
         
         :root[data-theme="dark"] .resource-section-title {
-            display: none;
+            display: block;
         }
         
         :root[data-theme="dark"] .divider {
-            display: none;
+            display: block;
         }
         
         :root[data-theme="dark"] .messages {
@@ -533,18 +527,46 @@
             border-bottom-color: #2C2C2C;
         }
         
-        :root[data-theme="dark"] .chat-footer {
+        :root[data-theme="dark"] .header-lang button {
             background: transparent;
+            color: white;
+            border: 1.5px solid rgba(255, 255, 255, 0.3);
+        }
+        
+        :root[data-theme="dark"] .header-lang button:hover {
+            border-color: #3FACC3;
+            background: rgba(255, 255, 255, 0.1);
+        }
+        
+        :root[data-theme="dark"] .header-lang button.active {
+            background: #3FACC3;
+            color: white;
+            border-color: #3FACC3;
+        }
+        
+        :root[data-theme="dark"] .logout-btn {
+            background: transparent;
+            color: white;
+            border: 1.5px solid rgba(255, 255, 255, 0.3);
+        }
+        
+        :root[data-theme="dark"] .logout-btn:hover {
+            border-color: #3FACC3;
+            background: rgba(255, 255, 255, 0.1);
+        }
+        
+        :root[data-theme="dark"] .chat-footer {
+            background: var(--bg-primary);
         }
         
         :root[data-theme="dark"] .input-group {
             background: #303030;
-            border: none;
+            border: 1px solid #404040;
         }
         
         :root[data-theme="dark"] .input-group:focus-within {
             background: #303030;
-            border: none;
+            border: 1px solid #404040;
         }
         
         :root[data-theme="dark"] .input-group textarea {
@@ -609,9 +631,9 @@
         
         .header-lang button {
             padding: 8px 20px;
-            background: rgba(255,255,255,0.1);
-            color: white;
-            border: 1px solid rgba(255,255,255,0.3);
+            background: transparent;
+            color: #1a1a1a;
+            border: 1.5px solid rgba(26, 26, 26, 0.3);
             border-radius: 8px;
             cursor: pointer;
             font-weight: 600;
@@ -622,20 +644,21 @@
         }
         
         .header-lang button:hover {
-            background: rgba(255,255,255,0.2);
+            border-color: #3FACC3;
+            background: rgba(26, 26, 26, 0.05);
         }
         
         .header-lang button.active {
-            background: white;
-            color: #001f3f;
-            border-color: white;
+            background: #3FACC3;
+            color: white;
+            border-color: #3FACC3;
         }
         
         .logout-btn {
             padding: 8px 20px;
-            background: rgba(255,255,255,0.1);
-            color: white;
-            border: 1px solid rgba(255,255,255,0.3);
+            background: transparent;
+            color: #1a1a1a;
+            border: 1.5px solid rgba(26, 26, 26, 0.3);
             border-radius: 8px;
             cursor: pointer;
             font-weight: 600;
@@ -645,7 +668,8 @@
         }
         
         .logout-btn:hover {
-            background: rgba(255,255,255,0.2);
+            border-color: #3FACC3;
+            background: rgba(26, 26, 26, 0.05);
         }
         
         .main-content {
@@ -692,8 +716,8 @@
         }
         
         .file-item:hover {
-            border-color: #1e90ff;
-            box-shadow: 0 4px 12px rgba(30, 144, 255, 0.1);
+            background: #EFEFEF;
+            border-color: var(--border-color);
         }
         
         .file-icon {
@@ -722,7 +746,7 @@
         
         .resource-section-title {
             font-size: 0.75rem;
-            font-weight: 700;
+            font-weight: 400;
             color: var(--text-secondary);
             text-transform: uppercase;
             letter-spacing: 0.5px;
@@ -738,14 +762,13 @@
             display: flex;
             align-items: center;
             gap: 10px;
-            border: 1px solid var(--border-color);
+            border: none;
             transition: all 0.2s;
             cursor: pointer;
         }
         
         .resource-item:hover {
-            border-color: #3FACC3;
-            box-shadow: 0 2px 8px rgba(63, 172, 195, 0.15);
+            background: #EFEFEF;
         }
         
         .resource-icon {
@@ -756,7 +779,7 @@
         .resource-name {
             flex: 1;
             font-size: 0.85rem;
-            font-weight: 600;
+            font-weight: 400;
             color: var(--text-primary);
             line-height: 1.3;
         }
@@ -781,6 +804,9 @@
             gap: 16px;
             background: var(--bg-primary);
             scrollbar-width: none;
+            max-width: 800px;
+            margin: 0 auto;
+            width: 100%;
         }
         
         .messages::-webkit-scrollbar {
@@ -1143,6 +1169,37 @@
                 padding: 6px 10px;
                 font-size: 0.75rem;
             }
+            
+            .chat-footer {
+                padding: 12px 12px 16px 12px;
+            }
+            
+            .messages {
+                padding: 16px 12px;
+                max-width: 100%;
+            }
+            
+            .quick-access {
+                max-width: 100%;
+            }
+            
+            .quick-btn {
+                padding: 8px 12px;
+                font-size: 0.85rem;
+            }
+            
+            .input-group {
+                padding: 8px 10px 8px 12px;
+                border-radius: 30px;
+            }
+            
+            .input-group textarea {
+                font-size: 1rem;
+            }
+            
+            .message-content {
+                max-width: 90%;
+            }
         }
     </style>
 </head>
@@ -1197,7 +1254,7 @@
     <div id="app" class="app">
         <div class="main-content">
             <div class="sidebar">
-                <h3 id="resourcesLabel">📄 Resources</h3>
+                <h3 id="resourcesLabel">Resources</h3>
                 <div id="filesList" class="files-list">
                     <div class="loading-text">Loading...</div>
                 </div>
@@ -1258,7 +1315,7 @@
                 selectTeamError: '❌ Selecciona un equipo',
                 enterCodeError: '❌ Ingresa el código',
                 incorrectCodeError: '❌ Código incorrecto',
-                resources: '📄 Recursos',
+                resources: 'Recursos',
                 loading: 'Cargando...',
                 messagePlaceholder: 'Mensaje...',
                 send: 'Enviar',
@@ -1284,14 +1341,14 @@
                 chipRefuel: '🥤 Zonas de avituallamiento',
                 chipBriefing: '📋 Briefing e información técnica',
                 // Sidebar
-                sectionOfficialDocs: '📋 Documentación Oficial',
+                sectionOfficialDocs: 'Documentación Oficial',
                 resourceRoadBook: 'Road Book',
                 resourceMediaBook: 'Media Book',
                 resourceRegulation: 'Reglamento Técnico',
-                sectionEmergency: '🚑 Emergencia y Contacto',
+                sectionEmergency: 'Emergencia y Contacto',
                 resourceEmergencyContacts: 'Contactos de Emergencia',
                 resourceMedicalServices: 'Servicios Médicos',
-                sectionAdditionalFiles: '📎 Archivos Adicionales'
+                sectionAdditionalFiles: 'Archivos Adicionales'
             },
             gl: {
                 selectTeamLabel: 'SELECCIONA O TEU EQUIPO',
@@ -1303,7 +1360,7 @@
                 selectTeamError: '❌ Selecciona un equipo',
                 enterCodeError: '❌ Introduce o código',
                 incorrectCodeError: '❌ Código incorrecto',
-                resources: '📄 Recursos',
+                resources: 'Recursos',
                 loading: 'Cargando...',
                 messagePlaceholder: 'Mensaxe...',
                 send: 'Enviar',
@@ -1329,14 +1386,14 @@
                 chipRefuel: '🥤 Zonas de avituallamento',
                 chipBriefing: '📋 Briefing e información técnica',
                 // Sidebar
-                sectionOfficialDocs: '📋 Documentación Oficial',
+                sectionOfficialDocs: 'Documentación Oficial',
                 resourceRoadBook: 'Road Book',
                 resourceMediaBook: 'Media Book',
                 resourceRegulation: 'Regulamento Técnico',
-                sectionEmergency: '🚑 Emerxencia e Contacto',
+                sectionEmergency: 'Emerxencia e Contacto',
                 resourceEmergencyContacts: 'Contactos de Emerxencia',
                 resourceMedicalServices: 'Servizos Médicos',
-                sectionAdditionalFiles: '📎 Ficheiros Adicionais'
+                sectionAdditionalFiles: 'Ficheiros Adicionais'
             },
             en: {
                 selectTeamLabel: 'SELECT YOUR TEAM',
@@ -1348,7 +1405,7 @@
                 selectTeamError: '❌ Select a team',
                 enterCodeError: '❌ Enter the code',
                 incorrectCodeError: '❌ Incorrect code',
-                resources: '📄 Resources',
+                resources: 'Resources',
                 loading: 'Loading...',
                 messagePlaceholder: 'Message...',
                 send: 'Send',
@@ -1374,14 +1431,14 @@
                 chipRefuel: '🥤 Refueling zones',
                 chipBriefing: '📋 Briefing and technical info',
                 // Sidebar
-                sectionOfficialDocs: '📋 Official Documentation',
+                sectionOfficialDocs: 'Official Documentation',
                 resourceRoadBook: 'Road Book',
                 resourceMediaBook: 'Media Book',
                 resourceRegulation: 'Technical Regulation',
-                sectionEmergency: '🚑 Emergency and Contact',
+                sectionEmergency: 'Emergency and Contact',
                 resourceEmergencyContacts: 'Emergency Contacts',
                 resourceMedicalServices: 'Medical Services',
-                sectionAdditionalFiles: '📎 Additional Files'
+                sectionAdditionalFiles: 'Additional Files'
             }
         };
         
