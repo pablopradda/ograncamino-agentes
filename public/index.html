@@ -967,9 +967,12 @@
             const savedTeamCode = localStorage.getItem('savedTeam');
             const savedCode = localStorage.getItem('savedCode');
             
+            console.log('🔍 Auto-login check:', { savedTeamCode, savedCode });
+            
             if (savedTeamCode && savedCode) {
                 // Caso especial: Acceso público
                 if (savedTeamCode === 'public' && savedCode === 'public') {
+                    console.log('✅ Auto-login: Acceso público');
                     const team = { name: t('publicAccess'), code: 'public', color: '#0EA5E9' };
                     startSession(team);
                     return;
@@ -978,14 +981,20 @@
                 // Equipos regulares
                 const team = TEAMS.find(t => t.code === savedTeamCode);
                 
+                console.log('🔍 Team found:', team);
+                
                 // Verificar que el código sigue siendo válido
                 if (team && savedCode === team.code) {
+                    console.log('✅ Auto-login exitoso para:', team.name);
                     startSession(team);
                 } else {
+                    console.log('❌ Código no válido, limpiando sesión');
                     // Limpiar si el código ya no es válido
                     localStorage.removeItem('savedTeam');
                     localStorage.removeItem('savedCode');
                 }
+            } else {
+                console.log('ℹ️ No hay sesión guardada');
             }
         }
         
@@ -1037,6 +1046,17 @@
         function selectTeam() {
             const select = document.getElementById('teamsSelect');
             selectedTeam = select.value || null;
+            
+            // Si seleccionas un equipo y ya tienes código guardado, autocompletarlo
+            const savedTeamCode = localStorage.getItem('savedTeam');
+            const savedCode = localStorage.getItem('savedCode');
+            
+            if (selectedTeam && savedTeamCode === selectedTeam && savedCode) {
+                document.getElementById('accessCode').value = savedCode;
+                console.log('🔑 Código autocompletado para:', selectedTeam);
+            } else {
+                document.getElementById('accessCode').value = '';
+            }
         }
         
         function showError(msg) {
@@ -1065,6 +1085,7 @@
             }
             
             // Guardar sesión en localStorage
+            console.log('💾 Guardando sesión:', { team: team.code, code });
             localStorage.setItem('savedTeam', team.code);
             localStorage.setItem('savedCode', code);
             
@@ -1075,6 +1096,7 @@
             const team = { name: t('publicAccess'), code: 'public', color: '#0EA5E9' };
             
             // Guardar sesión pública
+            console.log('💾 Guardando sesión pública');
             localStorage.setItem('savedTeam', 'public');
             localStorage.setItem('savedCode', 'public');
             
@@ -1101,9 +1123,7 @@
         }
         
         function handleLogout() {
-            // Limpiar sesión guardada
-            localStorage.removeItem('savedTeam');
-            localStorage.removeItem('savedCode');
+            // NO borrar sesión guardada - mantenerla para próximo auto-login
             
             currentSession = null;
             selectedTeam = null;
@@ -1111,8 +1131,21 @@
             document.getElementById('loginScreen').classList.remove('hidden');
             document.querySelector('.language-selector').classList.remove('hidden');
             document.getElementById('accessCode').value = '';
-            document.getElementById('teamsSelect').value = '';
             document.getElementById('messages').innerHTML = '';
+            
+            // Pre-seleccionar el equipo guardado
+            const savedTeamCode = localStorage.getItem('savedTeam');
+            if (savedTeamCode && savedTeamCode !== 'public') {
+                document.getElementById('teamsSelect').value = savedTeamCode;
+                selectedTeam = savedTeamCode;
+                // Autocompletar el código también
+                const savedCode = localStorage.getItem('savedCode');
+                if (savedCode) {
+                    document.getElementById('accessCode').value = savedCode;
+                }
+            } else {
+                document.getElementById('teamsSelect').value = '';
+            }
         }
         
         async function loadFiles() {
