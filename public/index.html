@@ -1392,20 +1392,23 @@
             }
             
             .quick-btn {
-                flex: 0 1 calc(50% - 4px);
-                min-width: calc(50% - 4px);
+                flex: 1 1 calc(50% - 4px);
+                min-width: 120px;
                 max-width: none;
-                padding: 12px 8px;
+                padding: 12px 10px;
                 min-height: 44px;
                 display: flex;
                 align-items: center;
                 justify-content: center;
+                gap: 8px;
                 font-size: 0.75rem;
                 white-space: normal;
+                overflow: visible;
                 text-align: center;
                 border-radius: 14px;
-                line-height: 1.2;
-                word-break: break-word;
+                line-height: 1.3;
+                word-break: normal;
+                flex-wrap: wrap;
             }
             
             .input-group {
