@@ -49,117 +49,104 @@
         }
         
         /* ========== THEME TOGGLE BUTTON ========== */
-        .theme-toggle {
-            background: #2a2a2a;
-            border: 1px solid #404040;
-            color: white;
-            border-radius: 10px;
+        .theme-slider-login {
             cursor: pointer;
+            margin: 0 8px;
+        }
+        
+        /* SLIDER TOGGLE EN CHAT */
+        
+        .login-header-controls {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            display: flex;
+            gap: 16px;
+            align-items: center;
+            z-index: 100;
+        }
+        
+        .language-selector-login {
+            display: flex !important;
+            gap: 8px;
+            position: static !important;
+        }
+        
+        /* SLIDER TOGGLE EN CHAT */
+        .theme-slider {
+            cursor: pointer;
+            margin: 0 8px;
+        }
+        
+        .slider-track {
+            width: 58px;
+            height: 32px;
+            background: #404040;
+            border-radius: 20px;
+            position: relative;
+            transition: background 0.3s ease;
+            border: 1px solid #505050;
+        }
+        
+        .slider-thumb {
+            width: 28px;
+            height: 28px;
+            background: white;
+            border-radius: 50%;
+            position: absolute;
+            top: 2px;
+            left: 2px;
+            transition: left 0.3s ease;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 1.1rem;
-            transition: all 0.3s ease;
+            font-size: 1rem;
+            font-weight: bold;
         }
         
-        .theme-toggle:hover {
-            background: #333333;
-            border-color: #505050;
-        }
-        
-        /* Toggle en Login */
-        .theme-toggle-login {
-            position: fixed;
-            bottom: 20px;
-            right: 20px;
-            z-index: 999;
-            width: 38px;
-            height: 38px;
-            border-radius: 50%;
-            display: flex !important;
-            align-items: center;
-            justify-content: center;
-            gap: 4px;
-        }
-        
-        .theme-toggle-login .theme-icon {
-            width: 20px;
-            height: 20px;
-        }
-        
-        .theme-toggle-login .moon-icon {
-            opacity: 1;
-        }
-        
-        .theme-toggle-login .sun-icon {
-            opacity: 0.3;
-        }
-        
-        /* En dark mode */
-        :root[data-theme="dark"] .theme-toggle-login .moon-icon {
-            opacity: 0.3;
-        }
-        
-        :root[data-theme="dark"] .theme-toggle-login .sun-icon {
-            opacity: 1;
-        }
-        
-        .theme-toggle-login.hidden {
-            display: none !important;
-        }
-        
-        /* Toggle en Chat */
-        .theme-toggle-chat {
-            width: 38px;
-            height: 38px;
-            margin: 0 8px;
-            border-radius: 10px;
-            display: flex !important;
-            align-items: center;
-            justify-content: center;
-            gap: 4px;
-        }
-        
-        .theme-toggle-chat .theme-icon {
+        .slider-thumb::before {
+            content: '';
+            display: inline-block;
             width: 16px;
             height: 16px;
-        }
-        
-        .theme-toggle-chat .moon-icon {
-            opacity: 0.5;
-            transition: opacity 0.3s ease;
-        }
-        
-        .theme-toggle-chat .sun-icon {
-            opacity: 0.5;
-            transition: opacity 0.3s ease;
-        }
-        
-        /* En light mode: luna opaca, sol transparente */
-        :root .theme-toggle-chat .moon-icon {
             opacity: 1;
-        }
-        
-        :root .theme-toggle-chat .sun-icon {
-            opacity: 0.3;
-        }
-        
-        /* En dark mode: sol opaco, luna transparente */
-        :root[data-theme="dark"] .theme-toggle-chat .moon-icon {
-            opacity: 0.3;
-        }
-        
-        :root[data-theme="dark"] .theme-toggle-chat .sun-icon {
-            opacity: 1;
-        }
-        
-        .theme-icon {
-            color: #ffffff;
             transition: opacity 0.3s ease;
+            background-image: url('data:image/svg+xml;utf8,<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79Z" stroke="%23333" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/></svg>');
+            background-size: contain;
+            background-repeat: no-repeat;
+            background-position: center;
         }
         
-        .theme-icon.hidden {
-            display: none;
+        .slider-thumb::after {
+            content: '';
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            position: absolute;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            background-image: url('data:image/svg+xml;utf8,<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="12" cy="12" r="5" stroke="%23333" stroke-width="1.5" fill="none"/><line x1="12" y1="1" x2="12" y2="3" stroke="%23333" stroke-width="1.5" stroke-linecap="round"/><line x1="12" y1="21" x2="12" y2="23" stroke="%23333" stroke-width="1.5" stroke-linecap="round"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64" stroke="%23333" stroke-width="1.5" stroke-linecap="round"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78" stroke="%23333" stroke-width="1.5" stroke-linecap="round"/><line x1="1" y1="12" x2="3" y2="12" stroke="%23333" stroke-width="1.5" stroke-linecap="round"/><line x1="21" y1="12" x2="23" y2="12" stroke="%23333" stroke-width="1.5" stroke-linecap="round"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36" stroke="%23333" stroke-width="1.5" stroke-linecap="round"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22" stroke="%23333" stroke-width="1.5" stroke-linecap="round"/></svg>');
+            background-size: contain;
+            background-repeat: no-repeat;
+            background-position: center;
+        }
+        
+        /* En dark mode: sol activo, a la derecha */
+        :root[data-theme="dark"] .slider-track {
+            background: #1e90ff;
+            border-color: #1e5db8;
+        }
+        
+        :root[data-theme="dark"] .slider-thumb {
+            left: 28px;
+        }
+        
+        :root[data-theme="dark"] .slider-thumb::before {
+            opacity: 0;
+        }
+        
+        :root[data-theme="dark"] .slider-thumb::after {
+            opacity: 1;
         }
         
         /* ========== LANGUAGE SELECTOR ========== */
@@ -207,6 +194,7 @@
             align-items: center;
             justify-content: center;
             padding: 20px;
+            position: relative;
         }
         
         .login-screen.hidden {
@@ -997,32 +985,22 @@
 </head>
 <body>
     <!-- THEME TOGGLE BUTTON - Solo en Login -->
-    <button class="theme-toggle theme-toggle-login" onclick="toggleTheme()" title="Toggle Dark Mode">
-        <svg class="theme-icon moon-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
-        </svg>
-        <svg class="theme-icon sun-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <circle cx="12" cy="12" r="5" stroke="currentColor" stroke-width="1.5" fill="none"/>
-            <line x1="12" y1="1" x2="12" y2="3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
-            <line x1="12" y1="21" x2="12" y2="23" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
-            <line x1="4.22" y1="4.22" x2="5.64" y2="5.64" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
-            <line x1="18.36" y1="18.36" x2="19.78" y2="19.78" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
-            <line x1="1" y1="12" x2="3" y2="12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
-            <line x1="21" y1="12" x2="23" y2="12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
-            <line x1="4.22" y1="19.78" x2="5.64" y2="18.36" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
-            <line x1="18.36" y1="5.64" x2="19.78" y2="4.22" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
-        </svg>
-    </button>
     
-    <!-- LANGUAGE SELECTOR -->
-    <div class="language-selector">
-        <button class="lang-btn active" data-lang="es">ES</button>
-        <button class="lang-btn" data-lang="gl">GL</button>
-        <button class="lang-btn" data-lang="en">EN</button>
-    </div>
     
     <!-- LOGIN SCREEN -->
     <div id="loginScreen" class="login-screen">
+        <div class="login-header-controls">
+            <div class="language-selector language-selector-login">
+                <button class="lang-btn active" data-lang="es">ES</button>
+                <button class="lang-btn" data-lang="gl">GL</button>
+                <button class="lang-btn" data-lang="en">EN</button>
+            </div>
+            <div class="theme-slider theme-slider-login" onclick="toggleTheme()">
+                <div class="slider-track">
+                    <div class="slider-thumb"></div>
+                </div>
+            </div>
+        </div>
         <div class="login-container">
             <div class="logo-section">
                 <img src="/logohistorical_version2023.png" alt="O Gran Camiño" class="logo-image">
@@ -1067,22 +1045,11 @@
                     <button data-lang="gl" id="langGl">GL</button>
                     <button data-lang="en" id="langEn">EN</button>
                 </div>
-                <button class="theme-toggle theme-toggle-chat" onclick="toggleTheme()" title="Toggle Dark Mode">
-                    <svg class="theme-icon moon-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
-                    </svg>
-                    <svg class="theme-icon sun-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <circle cx="12" cy="12" r="5" stroke="currentColor" stroke-width="1.5" fill="none"/>
-                        <line x1="12" y1="1" x2="12" y2="3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
-                        <line x1="12" y1="21" x2="12" y2="23" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
-                        <line x1="4.22" y1="4.22" x2="5.64" y2="5.64" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
-                        <line x1="18.36" y1="18.36" x2="19.78" y2="19.78" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
-                        <line x1="1" y1="12" x2="3" y2="12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
-                        <line x1="21" y1="12" x2="23" y2="12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
-                        <line x1="4.22" y1="19.78" x2="5.64" y2="18.36" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
-                        <line x1="18.36" y1="5.64" x2="19.78" y2="4.22" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
-                    </svg>
-                </button>
+                <div class="theme-slider" onclick="toggleTheme()">
+                    <div class="slider-track">
+                        <div class="slider-thumb"></div>
+                    </div>
+                </div>
                 <button class="logout-btn" id="logoutBtnText" onclick="handleLogout()">Logout</button>
             </div>
         </div>
