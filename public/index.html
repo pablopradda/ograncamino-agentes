@@ -415,6 +415,52 @@
             color: #999;
         }
         
+        /* ========== FIXED RESOURCES ========== */
+        .resource-section {
+            margin-bottom: 20px;
+        }
+        
+        .resource-section-title {
+            font-size: 0.75rem;
+            font-weight: 700;
+            color: #6b7280;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 10px;
+            padding: 0 4px;
+        }
+        
+        .resource-item {
+            background: white;
+            padding: 12px;
+            border-radius: 10px;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            border: 1px solid #e5e7eb;
+            transition: all 0.2s;
+            cursor: pointer;
+        }
+        
+        .resource-item:hover {
+            border-color: #3FACC3;
+            box-shadow: 0 2px 8px rgba(63, 172, 195, 0.15);
+        }
+        
+        .resource-icon {
+            font-size: 1.3rem;
+            flex-shrink: 0;
+        }
+        
+        .resource-name {
+            flex: 1;
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: #1a1a1a;
+            line-height: 1.3;
+        }
+        
         /* ========== CHAT AREA ========== */
         .chat-area {
             display: flex;
@@ -727,6 +773,36 @@
         
         ::-webkit-scrollbar-thumb:hover {
             background: #1e5db8;
+        }
+        
+        /* ========== QUICK ACCESS BUTTONS ========== */
+        .quick-access {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            padding: 16px 0;
+            animation: fadeIn 0.5s ease;
+            max-width: 85%;
+        }
+        
+        .quick-btn {
+            padding: 10px 16px;
+            background: white;
+            color: #1A3050;
+            border: 2px solid #e5e7eb;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            white-space: nowrap;
+        }
+        
+        .quick-btn:hover {
+            border-color: #3FACC3;
+            background: #3FACC3;
+            color: white;
+            box-shadow: 0 4px 12px rgba(63, 172, 195, 0.2);
         }
         
         /* ========== RESPONSIVO ========== */
@@ -1119,7 +1195,61 @@
                 welcomeMsg = t('welcome', team.name);
             }
             addMessage(welcomeMsg, 'agent');
+            
+            // Agregar botones de acceso rápido
+            showQuickAccess(team.code === 'public');
+            
             loadFiles();
+        }
+        
+        function showQuickAccess(isPublic) {
+            const quickAccessDiv = document.createElement('div');
+            quickAccessDiv.className = 'quick-access';
+            
+            let buttons = [];
+            
+            if (isPublic) {
+                // Botones para acceso público
+                buttons = [
+                    '📅 Calendario de etapas',
+                    '🗺️ Ver recorrido completo',
+                    '📊 Clasificación general',
+                    '🏆 Información de equipos',
+                    '🌦️ Clima de las etapas'
+                ];
+            } else {
+                // Botones para equipos
+                buttons = [
+                    '🏨 ¿Dónde está mi hotel?',
+                    '📍 Punto de salida mañana',
+                    '🗺️ Descargar GPX de etapa',
+                    '🌦️ ¿Qué tiempo hará mañana?',
+                    '📏 Distancia de la etapa',
+                    '⛰️ Perfil y desnivel',
+                    '🥤 Zonas de avituallamiento',
+                    '📋 Briefing e información técnica'
+                ];
+            }
+            
+            buttons.forEach(text => {
+                const btn = document.createElement('button');
+                btn.className = 'quick-btn';
+                btn.textContent = text;
+                btn.onclick = () => sendQuickMessage(text);
+                quickAccessDiv.appendChild(btn);
+            });
+            
+            document.getElementById('messages').appendChild(quickAccessDiv);
+            document.getElementById('messages').scrollTop = document.getElementById('messages').scrollHeight;
+        }
+        
+        function sendQuickMessage(text) {
+            // Remover los emojis del texto
+            const cleanText = text.replace(/[^\w\s¿?¡!áéíóúñÁÉÍÓÚÑ]/g, '').trim();
+            
+            // Simular que el usuario escribió el mensaje
+            document.getElementById('messageInput').value = cleanText;
+            sendMessage();
         }
         
         function handleLogout() {
@@ -1151,26 +1281,76 @@
         async function loadFiles() {
             const list = document.getElementById('filesList');
             
+            // Crear secciones fijas de recursos
+            let fixedResources = '';
+            
+            // Sección: Documentación Oficial
+            fixedResources += `
+                <div class="resource-section">
+                    <div class="resource-section-title">📋 Documentación Oficial</div>
+                    <div class="resource-item" onclick="askAbout('Road Book completo')">
+                        <div class="resource-icon">📖</div>
+                        <div class="resource-name">Road Book</div>
+                    </div>
+                    <div class="resource-item" onclick="askAbout('Media Book y dossier de prensa')">
+                        <div class="resource-icon">📰</div>
+                        <div class="resource-name">Media Book</div>
+                    </div>
+                    <div class="resource-item" onclick="askAbout('Reglamento técnico de la carrera')">
+                        <div class="resource-icon">📜</div>
+                        <div class="resource-name">Reglamento Técnico</div>
+                    </div>
+                </div>
+            `;
+            
+            
+            // Sección: Emergencia y Contacto
+            fixedResources += `
+                <div class="resource-section">
+                    <div class="resource-section-title">🚑 Emergencia y Contacto</div>
+                    <div class="resource-item" onclick="askAbout('Números de emergencia y contactos importantes')">
+                        <div class="resource-icon">📞</div>
+                        <div class="resource-name">Contactos de Emergencia</div>
+                    </div>
+                    <div class="resource-item" onclick="askAbout('Servicios médicos disponibles')">
+                        <div class="resource-icon">⚕️</div>
+                        <div class="resource-name">Servicios Médicos</div>
+                    </div>
+                </div>
+            `;
+            
+            list.innerHTML = fixedResources;
+            
+            // Intentar cargar archivos dinámicos adicionales
             try {
                 const res = await fetch('/api/chat/files');
                 const data = await res.json();
                 
                 const files = data.files || [];
-                if (files.length === 0) {
-                    list.innerHTML = '';
-                    return;
+                if (files.length > 0) {
+                    const dynamicFiles = `
+                        <div class="resource-section">
+                            <div class="resource-section-title">📎 Archivos Adicionales</div>
+                            ${files.map(f => `
+                                <div class="file-item">
+                                    <div class="file-icon">${getFileIcon(f.type)}</div>
+                                    <div class="file-name">${f.name}</div>
+                                    <div class="file-type">${f.type}</div>
+                                </div>
+                            `).join('')}
+                        </div>
+                    `;
+                    list.innerHTML += dynamicFiles;
                 }
-                
-                list.innerHTML = files.map(f => `
-                    <div class="file-item">
-                        <div class="file-icon">${getFileIcon(f.type)}</div>
-                        <div class="file-name">${f.name}</div>
-                        <div class="file-type">${f.type}</div>
-                    </div>
-                `).join('');
             } catch (e) {
-                list.innerHTML = '';
+                // Si falla la carga de archivos dinámicos, solo mostrar los fijos
+                console.log('No se pudieron cargar archivos adicionales');
             }
+        }
+        
+        function askAbout(topic) {
+            document.getElementById('messageInput').value = topic;
+            sendMessage();
         }
         
         function getFileIcon(type) {
