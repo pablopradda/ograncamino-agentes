@@ -10,11 +10,16 @@ const supabase = createClient(
   process.env.SUPABASE_ANON_KEY
 );
 
-const SYSTEM_PROMPT = `Eres el asistente inteligente de O Gran Camiño 2025.
+// SYSTEM PROMPTS POR IDIOMA
+const SYSTEM_PROMPTS = {
+  es: `Eres el asistente inteligente de O Gran Camiño 2025.
 
 ## REGLA CRÍTICA
 **NO INVENTES DATOS.** Solo usa exactamente lo que está en la base de datos.
 Si la información no está disponible, dilo claramente.
+
+## IDIOMA
+**RESPONDE SIEMPRE EN ESPAÑOL.** Todo tu contenido debe estar en español, incluyendo tablas, títulos y descripciones.
 
 ## FORMATO DE RESPUESTAS
 
@@ -37,7 +42,72 @@ SIEMPRE en HTML elegante:
 </table>
 
 EMOJIS: 🚴 🗺️ 🏨 📍 ⚠️ 📅 🌤️ 🚗
-`;
+`,
+
+  en: `You are the intelligent assistant for O Gran Camiño 2025.
+
+## CRITICAL RULE
+**DO NOT INVENT DATA.** Only use exactly what is in the database.
+If information is not available, say so clearly.
+
+## LANGUAGE
+**ALWAYS RESPOND IN ENGLISH.** All your content must be in English, including tables, titles and descriptions.
+
+## RESPONSE FORMAT
+
+ALWAYS use elegant HTML:
+
+<h3>🏨 O Gran Camiño 2025 Hotels</h3>
+<table style="width:100%; border-collapse:collapse;">
+  <tr style="background:#667eea; color:white;">
+    <th style="padding:10px; text-align:left; border:1px solid #ddd;">Stage</th>
+    <th style="padding:10px; text-align:left; border:1px solid #ddd;">Date</th>
+    <th style="padding:10px; text-align:left; border:1px solid #ddd;">Hotel</th>
+    <th style="padding:10px; text-align:left; border:1px solid #ddd;">City</th>
+  </tr>
+  <tr>
+    <td style="padding:10px; border:1px solid #ddd;">Stage 1</td>
+    <td style="padding:10px; border:1px solid #ddd;">Feb 26</td>
+    <td style="padding:10px; border:1px solid #ddd;">Feel Viana</td>
+    <td style="padding:10px; border:1px solid #ddd;">Viana do Castelo</td>
+  </tr>
+</table>
+
+EMOJIS: 🚴 🗺️ 🏨 📍 ⚠️ 📅 🌤️ 🚗
+`,
+
+  gl: `Es o asistente intelixente de O Gran Camiño 2025.
+
+## REGRA CRÍTICA
+**NON INVENTES DATOS.** Só usa exactamente o que está na base de datos.
+Se a información non está dispoñible, dío claramente.
+
+## IDIOMA
+**RESPONDE SEMPRE EN GALEGO.** Todo o teu contido debe estar en galego, incluíndo táboas, títulos e descricións.
+
+## FORMATO DE RESPOSTAS
+
+SEMPRE en HTML elegante:
+
+<h3>🏨 Hoteis O Gran Camiño 2025</h3>
+<table style="width:100%; border-collapse:collapse;">
+  <tr style="background:#667eea; color:white;">
+    <th style="padding:10px; text-align:left; border:1px solid #ddd;">Etapa</th>
+    <th style="padding:10px; text-align:left; border:1px solid #ddd;">Data</th>
+    <th style="padding:10px; text-align:left; border:1px solid #ddd;">Hotel</th>
+    <th style="padding:10px; text-align:left; border:1px solid #ddd;">Cidade</th>
+  </tr>
+  <tr>
+    <td style="padding:10px; border:1px solid #ddd;">Etapa 1</td>
+    <td style="padding:10px; border:1px solid #ddd;">26 Feb</td>
+    <td style="padding:10px; border:1px solid #ddd;">Feel Viana</td>
+    <td style="padding:10px; border:1px solid #ddd;">Viana do Castelo</td>
+  </tr>
+</table>
+
+EMOJIS: 🚴 🗺️ 🏨 📍 ⚠️ 📅 🌤️ 🚗
+`
+};
 
 export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
@@ -72,11 +142,14 @@ export default async function handler(req, res) {
     
     // POST /api/chat - Chat con contexto de Supabase
     if (req.method === 'POST') {
-      const { message, team, history = [] } = req.body;
+      const { message, team, history = [], language = 'es' } = req.body;
       
       if (!message) {
         return res.status(400).json({ success: false, error: 'Mensaje requerido' });
       }
+      
+      // Seleccionar el system prompt según el idioma
+      const SYSTEM_PROMPT = SYSTEM_PROMPTS[language] || SYSTEM_PROMPTS.es;
       
       let teamId = null;
       
@@ -98,8 +171,38 @@ export default async function handler(req, res) {
         }
       }
       
+      // Traducciones para el contexto según idioma
+      const translations = {
+        es: {
+          dataHeader: '\n## DATOS DE O GRAN CAMIÑO 2025:\n\n',
+          hotelsHeader: '### 🏨 HOTELES POR ETAPA:\n',
+          stagesHeader: '\n### 📅 ETAPAS:\n',
+          incidentsHeader: '\n### ⚠️ INCIDENCIAS RECIENTES:\n',
+          documentsHeader: '\n### 📄 DOCUMENTOS DISPONIBLES:\n',
+          stage: 'Etapa'
+        },
+        en: {
+          dataHeader: '\n## O GRAN CAMIÑO 2025 DATA:\n\n',
+          hotelsHeader: '### 🏨 HOTELS PER STAGE:\n',
+          stagesHeader: '\n### 📅 STAGES:\n',
+          incidentsHeader: '\n### ⚠️ RECENT INCIDENTS:\n',
+          documentsHeader: '\n### 📄 AVAILABLE DOCUMENTS:\n',
+          stage: 'Stage'
+        },
+        gl: {
+          dataHeader: '\n## DATOS DE O GRAN CAMIÑO 2025:\n\n',
+          hotelsHeader: '### 🏨 HOTEIS POR ETAPA:\n',
+          stagesHeader: '\n### 📅 ETAPAS:\n',
+          incidentsHeader: '\n### ⚠️ INCIDENCIAS RECENTES:\n',
+          documentsHeader: '\n### 📄 DOCUMENTOS DISPOÑIBLES:\n',
+          stage: 'Etapa'
+        }
+      };
+      
+      const t = translations[language] || translations.es;
+      
       // Construir contexto desde Supabase
-      let context = '\n## DATOS DE O GRAN CAMIÑO 2025:\n\n';
+      let context = t.dataHeader;
       
       // Hotels para este equipo (si está autenticado)
       if (teamId) {
@@ -118,13 +221,13 @@ export default async function handler(req, res) {
         if (hotelsError) {
           console.error('Error fetching hotels:', hotelsError);
         } else if (hotels && hotels.length > 0) {
-          context += '### 🏨 HOTELES POR ETAPA:\n';
+          context += t.hotelsHeader;
           hotels.forEach(h => {
             const dateFormatted = new Date(h.stages.date).toLocaleDateString('es-ES', { 
               day: '2-digit', 
               month: 'short' 
             });
-            context += `- Etapa ${h.stages.stage_number} (${dateFormatted}): ${h.hotel_name}, ${h.city}\n`;
+            context += `- ${t.stage} ${h.stages.stage_number} (${dateFormatted}): ${h.hotel_name}, ${h.city}\n`;
           });
         }
       }
@@ -138,13 +241,13 @@ export default async function handler(req, res) {
       if (stagesError) {
         console.error('Error fetching stages:', stagesError);
       } else if (stages && stages.length > 0) {
-        context += '\n### 📅 ETAPAS:\n';
+        context += t.stagesHeader;
         stages.forEach(s => {
           const dateFormatted = new Date(s.date).toLocaleDateString('es-ES', { 
             day: '2-digit', 
             month: 'short' 
           });
-          context += `- Etapa ${s.stage_number} (${dateFormatted}): ${s.start_location} → ${s.finish_location} (${s.distance_km}km)\n`;
+          context += `- ${t.stage} ${s.stage_number} (${dateFormatted}): ${s.start_location} → ${s.finish_location} (${s.distance_km}km)\n`;
         });
       }
       
@@ -158,9 +261,9 @@ export default async function handler(req, res) {
       if (incidentsError) {
         console.error('Error fetching incidents:', incidentsError);
       } else if (incidents && incidents.length > 0) {
-        context += '\n### ⚠️ INCIDENCIAS RECIENTES:\n';
+        context += t.incidentsHeader;
         incidents.forEach(i => {
-          context += `- Etapa ${i.stages.stage_number}: ${i.description}\n`;
+          context += `- ${t.stage} ${i.stages.stage_number}: ${i.description}\n`;
         });
       }
       
@@ -172,7 +275,7 @@ export default async function handler(req, res) {
       if (docsError) {
         console.error('Error fetching documents:', docsError);
       } else if (documents && documents.length > 0) {
-        context += '\n### 📄 DOCUMENTOS DISPONIBLES:\n';
+        context += t.documentsHeader;
         
         // URLs hardcodeadas correctas para los PDFs
         const PDF_URLS = {
@@ -194,7 +297,8 @@ export default async function handler(req, res) {
         messageLength: message.length,
         contextLength: context.length,
         teamId,
-        team
+        team,
+        language
       });
       
       // Llamar a Claude
