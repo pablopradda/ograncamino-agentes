@@ -1167,21 +1167,24 @@
         
         /* ========== TABLE STYLES DARK MODE ========== */
         :root[data-theme="dark"] table {
-            color: #1a1a1a;
+            color: #1a1a1a !important;
             border-collapse: collapse;
             width: 100%;
-            background: white;
+            background: white !important;
+            border: 1px solid #3a3a3a;
         }
         
         :root[data-theme="dark"] table thead th {
-            color: #ffffff;
-            background: #4a5ed9;
+            color: #1a1a1a !important;
+            background: #e0e0e0 !important;
+            font-weight: 700;
+            border: 1px solid #cccccc !important;
         }
         
         :root[data-theme="dark"] table tbody td {
-            color: #1a1a1a;
+            color: #1a1a1a !important;
             background: white !important;
-            border: 1px solid #e5e7eb;
+            border: 1px solid #e5e7eb !important;
         }
         
         :root[data-theme="dark"] table tbody tr {
@@ -1193,26 +1196,45 @@
         }
         
         :root[data-theme="dark"] table tbody tr:nth-child(even) {
-            background: white !important;
+            background: #f9f9f9 !important;
+        }
+        
+        /* Forzar que cualquier elemento dentro de una tabla tenga texto negro */
+        :root[data-theme="dark"] table * {
+            color: #1a1a1a !important;
         }
         
         /* ========== LINKS AND COLORED TEXT IN DARK MODE ========== */
         :root[data-theme="dark"] .message.agent .message-content a {
             color: #5dcedb !important;
+            font-weight: 600;
         }
         
         :root[data-theme="dark"] .message.agent .message-content a:hover {
             color: #3FACC3 !important;
         }
         
-        /* Force readable colors for any blue/colored text in dark mode */
-        :root[data-theme="dark"] .message.agent .message-content [style*="color"] {
-            color: #ffffff !important;
-        }
-        
+        /* Headers y títulos en dark mode - visible en blanco */
         :root[data-theme="dark"] .message.agent .message-content h1,
         :root[data-theme="dark"] .message.agent .message-content h2,
         :root[data-theme="dark"] .message.agent .message-content h3 {
+            color: #ffffff !important;
+        }
+        
+        /* Texto normal en mensajes del agente - blanco */
+        :root[data-theme="dark"] .message.agent .message-content {
+            color: #ffffff !important;
+        }
+        
+        :root[data-theme="dark"] .message.agent .message-content p {
+            color: #ffffff !important;
+        }
+        
+        :root[data-theme="dark"] .message.agent .message-content li {
+            color: #ffffff !important;
+        }
+        
+        :root[data-theme="dark"] .message.agent .message-content strong {
             color: #ffffff !important;
         }
         
