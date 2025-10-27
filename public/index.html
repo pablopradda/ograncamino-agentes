@@ -2090,13 +2090,27 @@
             currentLanguage = lang;
             localStorage.setItem('language', lang);
             
-            // Si hay una sesión activa y el idioma cambió, limpiar el historial
+            // Si hay una sesión activa y el idioma cambió, reiniciar el chat
             if (currentSession && previousLanguage !== lang) {
-                console.log(`🌐 Language changed from ${previousLanguage} to ${lang} - clearing history`);
+                console.log(`🌐 Language changed from ${previousLanguage} to ${lang} - resetting chat`);
+                
+                // Limpiar el historial de conversación
                 currentSession.history = [];
                 
-                // Opcional: Mostrar un mensaje indicando que se cambió el idioma
-                // addMessage(`Language changed to ${lang.toUpperCase()}`, 'system');
+                // Limpiar los mensajes visibles
+                document.getElementById('messages').innerHTML = '';
+                
+                // Volver a mostrar el mensaje de bienvenida en el nuevo idioma
+                let welcomeMsg;
+                if (currentSession.team.code === 'public') {
+                    welcomeMsg = t('welcomePublic', currentSession.team.name);
+                } else {
+                    welcomeMsg = t('welcome', currentSession.team.name);
+                }
+                addMessage(welcomeMsg, 'agent', 'welcomeMessage');
+                
+                // Volver a mostrar los botones de acceso rápido en el nuevo idioma
+                showQuickAccess(currentSession.team.code === 'public');
             }
             
             updateUI();
