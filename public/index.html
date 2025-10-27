@@ -1238,6 +1238,43 @@
             color: #ffffff !important;
         }
         
+        /* ========== FORCE BLACK TEXT ON LIGHT BACKGROUNDS ========== */
+        /* Cualquier div con fondo claro (azul, amarillo, blanco, etc) debe tener texto negro */
+        :root[data-theme="dark"] .message.agent .message-content div[style*="background"] {
+            color: #1a1a1a !important;
+        }
+        
+        :root[data-theme="dark"] .message.agent .message-content div[style*="background"] * {
+            color: #1a1a1a !important;
+        }
+        
+        :root[data-theme="dark"] .message.agent .message-content div[style*="background"] p {
+            color: #1a1a1a !important;
+        }
+        
+        :root[data-theme="dark"] .message.agent .message-content div[style*="background"] strong {
+            color: #1a1a1a !important;
+        }
+        
+        :root[data-theme="dark"] .message.agent .message-content div[style*="background"] span {
+            color: #1a1a1a !important;
+        }
+        
+        /* Cajas de advertencia/nota con fondo amarillo/azul/etc */
+        :root[data-theme="dark"] .message.agent .message-content [style*="background:#"],
+        :root[data-theme="dark"] .message.agent .message-content [style*="background: #"],
+        :root[data-theme="dark"] .message.agent .message-content [style*="background:rgb"],
+        :root[data-theme="dark"] .message.agent .message-content [style*="background: rgb"] {
+            color: #1a1a1a !important;
+        }
+        
+        :root[data-theme="dark"] .message.agent .message-content [style*="background:#"] *,
+        :root[data-theme="dark"] .message.agent .message-content [style*="background: #"] *,
+        :root[data-theme="dark"] .message.agent .message-content [style*="background:rgb"] *,
+        :root[data-theme="dark"] .message.agent .message-content [style*="background: rgb"] * {
+            color: #1a1a1a !important;
+        }
+        
         .typing-indicator {
             display: flex;
             gap: 4px;
