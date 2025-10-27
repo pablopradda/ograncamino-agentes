@@ -2390,7 +2390,8 @@
                 body: JSON.stringify({
                     message: topic,
                     team: currentSession.team.code,
-                    history: currentSession.history
+                    history: currentSession.history,
+                    language: currentLanguage
                 })
             })
             .then(res => res.json())
@@ -2443,7 +2444,8 @@
                     body: JSON.stringify({
                         message: msg,
                         team: currentSession.team.code,
-                        history: currentSession.history
+                        history: currentSession.history,
+                        language: currentLanguage
                     })
                 });
                 
