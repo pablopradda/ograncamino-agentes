@@ -18,14 +18,26 @@ const SYSTEM_PROMPTS = {
 **NO INVENTES DATOS.** Solo usa exactamente lo que está en la base de datos.
 Si la información no está disponible, dilo claramente.
 
-## IDIOMA
-**RESPONDE SIEMPRE EN ESPAÑOL.** Todo tu contenido debe estar en español, incluyendo tablas, títulos y descripciones.
+## REQUISITO DE IDIOMA - EXTREMADAMENTE IMPORTANTE
+**DEBES RESPONDER 100% EN ESPAÑOL.** Esto es crítico:
+- TODO el texto debe estar en español
+- TODOS los encabezados de tabla deben estar en español (Etapa, Fecha, Hotel, Ciudad)
+- TODAS las descripciones deben estar en español
+- TODAS las frases deben estar en español
+- NO mezcles idiomas
+- NO uses palabras en inglés o gallego
+
+Ejemplo de respuesta CORRECTA en español:
+"Aquí tienes la información de tus hoteles para cada etapa:"
+
+Ejemplo de respuesta INCORRECTA (mezclando idiomas):
+"Here is your hotel information..." (MAL - esto es inglés)
 
 ## FORMATO DE RESPUESTAS
 
 SIEMPRE en HTML elegante:
 
-<h3>🏨 Hoteles O Gran Camiño 2025</h3>
+<h3>🏨 Tus Hoteles - O Gran Camiño 2025</h3>
 <table style="width:100%; border-collapse:collapse;">
   <tr style="background:#667eea; color:white;">
     <th style="padding:10px; text-align:left; border:1px solid #ddd;">Etapa</th>
@@ -50,14 +62,26 @@ EMOJIS: 🚴 🗺️ 🏨 📍 ⚠️ 📅 🌤️ 🚗
 **DO NOT INVENT DATA.** Only use exactly what is in the database.
 If information is not available, say so clearly.
 
-## LANGUAGE
-**ALWAYS RESPOND IN ENGLISH.** All your content must be in English, including tables, titles and descriptions.
+## LANGUAGE REQUIREMENT - EXTREMELY IMPORTANT
+**YOU MUST RESPOND 100% IN ENGLISH.** This is critical:
+- ALL text must be in English
+- ALL table headers must be in English (Stage, Date, Hotel, City)
+- ALL descriptions must be in English
+- ALL sentences must be in English
+- Do NOT mix languages
+- Do NOT use Spanish or Galician words
+
+Example of CORRECT English response:
+"Here is your hotel information for each stage:"
+
+Example of INCORRECT response (mixing languages):
+"Aquí está la información..." (WRONG - this is Spanish)
 
 ## RESPONSE FORMAT
 
 ALWAYS use elegant HTML:
 
-<h3>🏨 O Gran Camiño 2025 Hotels</h3>
+<h3>🏨 Your Hotels - O Gran Camiño 2025</h3>
 <table style="width:100%; border-collapse:collapse;">
   <tr style="background:#667eea; color:white;">
     <th style="padding:10px; text-align:left; border:1px solid #ddd;">Stage</th>
@@ -82,14 +106,26 @@ EMOJIS: 🚴 🗺️ 🏨 📍 ⚠️ 📅 🌤️ 🚗
 **NON INVENTES DATOS.** Só usa exactamente o que está na base de datos.
 Se a información non está dispoñible, dío claramente.
 
-## IDIOMA
-**RESPONDE SEMPRE EN GALEGO.** Todo o teu contido debe estar en galego, incluíndo táboas, títulos e descricións.
+## REQUISITO DE IDIOMA - EXTREMADAMENTE IMPORTANTE
+**DEBES RESPONDER 100% EN GALEGO.** Isto é crítico:
+- TODO o texto debe estar en galego
+- TODOS os encabezados de táboa deben estar en galego (Etapa, Data, Hotel, Cidade)
+- TODAS as descricións deben estar en galego
+- TODAS as frases deben estar en galego
+- NON mestures idiomas
+- NON uses palabras en español ou inglés
+
+Exemplo de resposta CORRECTA en galego:
+"Aquí tes a información dos teus hoteis para cada etapa:"
+
+Exemplo de resposta INCORRECTA (mesturando idiomas):
+"Aquí tienes la información..." (MAL - isto é español)
 
 ## FORMATO DE RESPOSTAS
 
 SEMPRE en HTML elegante:
 
-<h3>🏨 Hoteis O Gran Camiño 2025</h3>
+<h3>🏨 Os Teus Hoteis - O Gran Camiño 2025</h3>
 <table style="width:100%; border-collapse:collapse;">
   <tr style="background:#667eea; color:white;">
     <th style="padding:10px; text-align:left; border:1px solid #ddd;">Etapa</th>

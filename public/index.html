@@ -2086,8 +2086,19 @@
         }
         
         function setLanguage(lang) {
+            const previousLanguage = currentLanguage;
             currentLanguage = lang;
             localStorage.setItem('language', lang);
+            
+            // Si hay una sesión activa y el idioma cambió, limpiar el historial
+            if (currentSession && previousLanguage !== lang) {
+                console.log(`🌐 Language changed from ${previousLanguage} to ${lang} - clearing history`);
+                currentSession.history = [];
+                
+                // Opcional: Mostrar un mensaje indicando que se cambió el idioma
+                // addMessage(`Language changed to ${lang.toUpperCase()}`, 'system');
+            }
+            
             updateUI();
             updateLanguageButtons();
         }
