@@ -26,6 +26,7 @@
             --input-bg: #ffffff;
             --input-border: #e5e7eb;
             --input-text: #1a1a1a;
+            --user-message-bg: #f5f5f5;
         }
         
         :root[data-theme="dark"] {
@@ -39,6 +40,7 @@
             --input-bg: #2a2a2a;
             --input-border: #3a3a3a;
             --input-text: #ffffff;
+            --user-message-bg: #303030;
         }
         
         * {
@@ -1026,7 +1028,7 @@
         }
         
         .message.user .message-content {
-            background: var(--bg-secondary);
+            background: var(--user-message-bg);
             color: var(--text-primary);
             border: none;
             border-radius: 24px;
@@ -1192,6 +1194,26 @@
         
         :root[data-theme="dark"] table tbody tr:nth-child(even) {
             background: white !important;
+        }
+        
+        /* ========== LINKS AND COLORED TEXT IN DARK MODE ========== */
+        :root[data-theme="dark"] .message.agent .message-content a {
+            color: #5dcedb !important;
+        }
+        
+        :root[data-theme="dark"] .message.agent .message-content a:hover {
+            color: #3FACC3 !important;
+        }
+        
+        /* Force readable colors for any blue/colored text in dark mode */
+        :root[data-theme="dark"] .message.agent .message-content [style*="color"] {
+            color: #ffffff !important;
+        }
+        
+        :root[data-theme="dark"] .message.agent .message-content h1,
+        :root[data-theme="dark"] .message.agent .message-content h2,
+        :root[data-theme="dark"] .message.agent .message-content h3 {
+            color: #ffffff !important;
         }
         
         .typing-indicator {
