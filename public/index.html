@@ -2444,6 +2444,13 @@
             addMessage(topic, 'user');
             showTyping();
             
+            // Log para debugging
+            console.log('📤 Sending from askAbout:', {
+                topic: topic,
+                team: currentSession.team.code,
+                language: currentLanguage
+            });
+            
             fetch('/api/chat', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -2456,6 +2463,7 @@
             })
             .then(res => res.json())
             .then(data => {
+                console.log('📥 Response from askAbout:', data);
                 if (data.success) {
                     hideTyping();
                     addMessage(data.response, 'agent');
@@ -2497,6 +2505,13 @@
             addMessage(msg, 'user');
             showTyping();
             
+            // Log para debugging
+            console.log('📤 Sending message:', {
+                message: msg,
+                team: currentSession.team.code,
+                language: currentLanguage
+            });
+            
             try {
                 const res = await fetch('/api/chat', {
                     method: 'POST',
@@ -2511,6 +2526,8 @@
                 
                 const data = await res.json();
                 if (!res.ok) throw new Error(data.error);
+                
+                console.log('📥 Response received:', data);
                 
                 hideTyping();
                 addMessage(data.response, 'agent');
